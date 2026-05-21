@@ -1,0 +1,309 @@
+'use client'
+
+import { useEffect, useState, useRef, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
+import {
+  ACTIVE_SESSION_KEY,
+  type ActiveSession,
+  type TranscriptTurn,
+} from '@/lib/scenarios'
+
+export default function SimulationPage() {
+  const router = useRouter()
+  const [session, setSession] = useState<ActiveSession | null>(null)
+  const [transcript, setTranscript] = useState<TranscriptTurn[]>([])
+  const [input, setInput] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [callEnded, setCallEnded] = useState(false)
+  const [elapsed, setElapsed] = useState(0)
+  const [isEmailStart, setIsEmailStart] = useState(false)
+  const bottomRef = useRef<HTMLDivElement>(null)
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const didInit = useRef(false)
+
+  useEffect(() => {
+    if (didInit.current) return
+    didInit.current = true
+
+    const raw = localStorage.getItem(ACTIVE_SESSION_KEY)
+    if (!raw) {
+      router.push('/')
+      return
+    }
+
+    const active: ActiveSession = JSON.parse(raw)
+    setSession(active)
+
+    if (active.mode === 'call') {
+      setTranscript([{ role: 'prospect', content: active.persona.openingLine }])
+      timerRef.current = setInterval(() => setElapsed(e => e + 1), 1000)
+    } else {
+      setIsEmailStart(true)
+    }
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
+  }, [router])
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [transcript])
+
+  const formatTime = (s: number) => {
+    const m = Math.floor(s / 60)
+    const sec = s % 60
+    return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
+  }
+
+  const detectCallEnd = (message: string): boolean => {
+    const endPhrases = [
+      'goodbye', 'bye.', 'got to go', 'gotta go', 'have to run',
+      'not interested', 'stop calling', 'remove me',
+      "i'm done", 'end this call', 'hang up',
+    ]
+    const lower = message.toLowerCase()
+    return endPhrases.some(p => lower.includes(p))
+  }
+
+  const sendMessage = useCallback(async (messageOverride?: string) => {
+    if (!session) return
+    const text = (messageOverride ?? input).trim()
+    if (!text || isLoading) return
+
+    const repTurn: TranscriptTurn = { role: 'rep', content: text }
+    const updatedTranscript = [...transcript, repTurn]
+
+    setTranscript(updatedTranscript)
+    setInput('')
+    setIsEmailStart(false)
+    setIsLoading(true)
+
+    try {
+      const res = await fetch('/api/prospect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          transcript: updatedTranscript,
+          persona: session.persona,
+          latestRepMessage: text,
+          mode: session.mode,
+        }),
+      })
+
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let prospectText = ''
+
+      setTranscript(prev => [...prev, { role: 'prospect', content: '' }])
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        const chunk = decoder.decode(value, { stream: true })
+        prospectText += chunk
+        setTranscript(prev => {
+          const updated = [...prev]
+          updated[updated.length - 1] = { role: 'prospect', content: prospectText }
+          return updated
+        })
+      }
+
+      if (detectCallEnd(prospectText)) {
+        setCallEnded(true)
+        if (timerRef.current) clearInterval(timerRef.current)
+      }
+    } catch (err) {
+      console.error('Prospect response failed:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [session, input, isLoading, transcript])
+
+  const endSession = () => {
+    if (!session) return
+    const updated: ActiveSession = { ...session, transcript }
+    localStorage.setItem(ACTIVE_SESSION_KEY, JSON.stringify(updated))
+    if (timerRef.current) clearInterval(timerRef.current)
+    router.push('/debrief')
+  }
+
+  if (!session) return null
+
+  const { persona, mode } = session
+  const isCall = mode === 'call'
+
+  if (isCall) {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex flex-col">
+        {/* Call header */}
+        <div className="bg-zinc-900 border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-zinc-700 flex items-center justify-center text-white text-sm font-semibold">
+              {persona.name.charAt(0)}
+            </div>
+            <div>
+              <div className="text-white font-semibold text-sm">{persona.name}</div>
+              <div className="text-zinc-400 text-xs">{persona.jobTitle} · {persona.company}</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            {callEnded ? (
+              <span className="text-red-400 text-sm font-medium">Call ended</span>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                <span className="text-green-400 text-sm font-mono">{formatTime(elapsed)}</span>
+              </div>
+            )}
+            <button
+              onClick={endSession}
+              className="bg-red-600 hover:bg-red-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+            >
+              {callEnded ? 'Go to Debrief →' : 'End Call'}
+            </button>
+          </div>
+        </div>
+
+        {/* Transcript */}
+        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
+          {transcript.map((turn, i) => (
+            <div key={i} className={`flex ${turn.role === 'rep' ? 'justify-end' : 'justify-start'}`}>
+              <div className="max-w-[72%]">
+                <div className={`text-xs mb-1 font-medium text-zinc-500 ${turn.role === 'rep' ? 'text-right' : ''}`}>
+                  {turn.role === 'rep' ? 'You' : persona.name}
+                </div>
+                <div
+                  className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                    turn.role === 'rep'
+                      ? 'bg-green-500 text-zinc-950 rounded-br-sm'
+                      : 'bg-zinc-800 text-zinc-100 rounded-bl-sm'
+                  }`}
+                >
+                  {turn.content || (
+                    <span className="text-zinc-500 italic animate-pulse">...</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+          <div ref={bottomRef} />
+        </div>
+
+        {/* Input */}
+        {!callEnded ? (
+          <div className="bg-zinc-900 border-t border-zinc-800 px-6 py-4">
+            <div className="flex gap-3">
+              <input
+                type="text"
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+                disabled={isLoading}
+                placeholder="Type your response..."
+                className="flex-1 bg-zinc-800 text-white placeholder-zinc-500 px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
+              />
+              <button
+                onClick={() => sendMessage()}
+                disabled={isLoading || !input.trim()}
+                className="bg-green-500 hover:bg-green-400 disabled:bg-zinc-700 disabled:text-zinc-500 text-zinc-950 font-bold px-5 py-3 rounded-xl transition-colors text-sm"
+              >
+                Send
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-zinc-900 border-t border-zinc-800 px-6 py-4 flex justify-center">
+            <button
+              onClick={endSession}
+              className="bg-green-500 hover:bg-green-400 text-zinc-950 font-bold px-8 py-3 rounded-xl transition-colors"
+            >
+              Go to Debrief →
+            </button>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // Email mode
+  return (
+    <div className="min-h-screen bg-zinc-50 flex flex-col">
+      <nav className="bg-white border-b border-zinc-200 px-6 py-4 flex items-center justify-between">
+        <div>
+          <div className="font-semibold text-zinc-900 text-sm">Cold Email</div>
+          <div className="text-zinc-400 text-xs">
+            {persona.name} · {persona.jobTitle} · {persona.company}
+          </div>
+        </div>
+        <button
+          onClick={endSession}
+          className="bg-zinc-900 hover:bg-zinc-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+        >
+          {callEnded ? 'Go to Debrief →' : 'End Conversation'}
+        </button>
+      </nav>
+
+      <div className="max-w-2xl mx-auto w-full px-6 py-8 flex-1 flex flex-col">
+        <div className="flex-1 space-y-4 mb-6">
+          {transcript.map((turn, i) => (
+            <div
+              key={i}
+              className={`rounded-2xl p-5 text-sm leading-relaxed ${
+                turn.role === 'rep'
+                  ? 'bg-white border border-zinc-200'
+                  : 'bg-green-50 border border-green-100'
+              }`}
+            >
+              <div className={`text-xs font-semibold mb-2 ${turn.role === 'rep' ? 'text-zinc-400' : 'text-green-700'}`}>
+                {turn.role === 'rep' ? 'You' : `${persona.name} replied`}
+              </div>
+              <div className={turn.role === 'rep' ? 'text-zinc-700 whitespace-pre-wrap' : 'text-zinc-800'}>
+                {turn.content || <span className="text-zinc-400 italic animate-pulse">...</span>}
+              </div>
+            </div>
+          ))}
+          <div ref={bottomRef} />
+        </div>
+
+        {!callEnded ? (
+          <div className="bg-white rounded-2xl border border-zinc-200 p-5">
+            <div className="text-xs font-semibold text-zinc-400 mb-3 uppercase tracking-wider">
+              {isEmailStart ? 'Compose your cold email' : `Reply to ${persona.name}`}
+            </div>
+            <textarea
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              disabled={isLoading}
+              rows={isEmailStart ? 8 : 5}
+              placeholder={
+                isEmailStart
+                  ? `Write your cold email to ${persona.name}...`
+                  : 'Write your reply...'
+              }
+              className="w-full text-zinc-900 text-sm leading-relaxed placeholder-zinc-400 resize-none focus:outline-none disabled:opacity-50"
+            />
+            <div className="flex justify-end mt-3">
+              <button
+                onClick={() => sendMessage()}
+                disabled={isLoading || !input.trim()}
+                className="bg-zinc-900 hover:bg-zinc-700 disabled:bg-zinc-200 disabled:text-zinc-400 text-white font-semibold text-sm px-6 py-2.5 rounded-lg transition-colors"
+              >
+                {isEmailStart ? 'Send Email' : 'Send Reply'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center">
+            <button
+              onClick={endSession}
+              className="bg-green-500 hover:bg-green-400 text-zinc-950 font-bold px-8 py-3 rounded-xl transition-colors"
+            >
+              Go to Debrief →
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
