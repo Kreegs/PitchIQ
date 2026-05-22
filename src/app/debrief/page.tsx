@@ -64,12 +64,13 @@ function parseScore(scoreText: string): { total: number; breakdown: Partial<Scor
 }
 
 function ScoreBar({ label, earned, max }: { label: string; earned: number; max: number }) {
-  const pct = Math.round((earned / max) * 100)
+  const capped = Math.min(earned, max)
+  const pct = Math.round((capped / max) * 100)
   return (
     <div>
       <div className="flex justify-between text-xs mb-1">
         <span className="text-zinc-600">{label}</span>
-        <span className="text-zinc-900 font-semibold">{earned}/{max}</span>
+        <span className="text-zinc-900 font-semibold">{capped}/{max}</span>
       </div>
       <div className="h-1.5 bg-zinc-100 rounded-full">
         <div
