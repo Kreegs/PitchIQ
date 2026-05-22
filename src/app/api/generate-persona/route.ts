@@ -4,8 +4,6 @@ import { readFileSync } from 'fs'
 import { join } from 'path'
 import type { Difficulty } from '@/lib/scenarios'
 
-const client = new Anthropic()
-
 const objectionCountByDifficulty: Record<Difficulty, string> = {
   beginner: '1 or 2',
   intermediate: '2',
@@ -14,6 +12,7 @@ const objectionCountByDifficulty: Record<Difficulty, string> = {
 
 export async function POST(req: NextRequest) {
   try {
+    const client = new Anthropic()
     const { difficulty }: { difficulty: Difficulty } = await req.json()
 
     const scenarioPools = readFileSync(

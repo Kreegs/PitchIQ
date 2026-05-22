@@ -4,8 +4,6 @@ import { readFileSync } from 'fs'
 import { join } from 'path'
 import type { Persona, TranscriptTurn } from '@/lib/scenarios'
 
-const client = new Anthropic()
-
 function readCoach(path: string) {
   return readFileSync(join(process.cwd(), path), 'utf-8')
 }
@@ -17,6 +15,7 @@ function formatTranscript(transcript: TranscriptTurn[], prospectName: string): s
 }
 
 export async function POST(req: NextRequest) {
+  const client = new Anthropic()
   const {
     action,
     transcript,

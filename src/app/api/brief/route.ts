@@ -4,8 +4,6 @@ import { readFileSync } from 'fs'
 import { join } from 'path'
 import type { Persona, Session } from '@/lib/scenarios'
 
-const client = new Anthropic()
-
 function readCoach(path: string) {
   return readFileSync(join(process.cwd(), path), 'utf-8')
 }
@@ -40,6 +38,7 @@ Last session summary: ${last?.summary ?? 'none'}
 }
 
 export async function POST(req: NextRequest) {
+  const client = new Anthropic()
   const {
     persona,
     mode,
