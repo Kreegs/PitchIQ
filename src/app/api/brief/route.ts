@@ -79,7 +79,7 @@ What puts this prospect off: ${persona.dislikes.join('; ')}
 Deliver Rex's full briefing now. Follow the GROW structure from your identity file. Write in paragraphs, not lists. No em dashes. Address ${repName} directly by name at least once. End on the single behavior you will be watching most closely in this session.`
 
   const stream = await client.messages.stream({
-    model: 'claude-sonnet-4-5',
+    model: 'claude-haiku-4-5',
     max_tokens: 700,
     system: systemPrompt,
     messages: [{ role: 'user', content: 'Brief me.' }],
