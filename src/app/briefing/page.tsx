@@ -18,6 +18,7 @@ export default function BriefingPage() {
   const [mode, setMode] = useState<string>('call')
   const [repName, setRepName] = useState<string>('')
   const [ready, setReady] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const didInit = useRef(false)
 
   useEffect(() => {
@@ -83,6 +84,7 @@ export default function BriefingPage() {
         setReady(true)
       } catch (err) {
         console.error('Briefing init failed:', err)
+        setError(err instanceof Error ? err.message : String(err))
         setLoading(false)
       }
     }
@@ -151,6 +153,12 @@ export default function BriefingPage() {
               <div className="h-4 bg-zinc-200 rounded animate-pulse w-5/6" />
               <div className="h-4 bg-zinc-200 rounded animate-pulse w-full" />
               <div className="h-4 bg-zinc-200 rounded animate-pulse w-4/6" />
+            </div>
+          )}
+
+          {error && (
+            <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-xl p-4">
+              <strong>Error:</strong> {error}
             </div>
           )}
 
