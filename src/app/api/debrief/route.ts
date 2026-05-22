@@ -52,7 +52,7 @@ ${transcriptText}
 Open the debrief with a single reflective question directed at ${repName}. Do not give any assessment yet. Do not hint at what you think went well or badly. Ask them what they think happened — what worked and what they think cost them. One question. No preamble. No em dashes. Address ${repName} by name.`
 
     const stream = await client.messages.stream({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5',
       max_tokens: 200,
       system: systemPrompt,
       messages: [{ role: 'user', content: 'Open the debrief.' }],
@@ -137,7 +137,7 @@ Deliver the full debrief now. Use the section delimiters exactly as shown. Write
 [First line: total score out of 100. Then each sub-score on its own line: label, points earned, points available. Apply the Tier 1 cap if any Tier 1 rule was violated.]`
 
   const stream = await client.messages.stream({
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-sonnet-4-5',
     max_tokens: 2000,
     system: systemPrompt,
     messages: [{ role: 'user', content: 'Deliver the debrief.' }],

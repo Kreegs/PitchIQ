@@ -54,7 +54,7 @@ ${transcript.map(t => `${t.role === 'rep' ? 'Rep' : persona.name}: ${t.content}`
 Respond now as ${persona.name}.`
 
   const stream = await client.messages.stream({
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-sonnet-4-5',
     max_tokens: 250,
     system: systemPrompt,
     messages: [{ role: 'user', content: latestRepMessage }],
