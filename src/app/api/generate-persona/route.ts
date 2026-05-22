@@ -13,20 +13,21 @@ const objectionCountByDifficulty: Record<Difficulty, string> = {
 }
 
 export async function POST(req: NextRequest) {
-  const { difficulty }: { difficulty: Difficulty } = await req.json()
+  try {
+    const { difficulty }: { difficulty: Difficulty } = await req.json()
 
-  const scenarioPools = readFileSync(
-    join(process.cwd(), 'coach', 'reference', 'scenarios.md'),
-    'utf-8'
-  )
+    const scenarioPools = readFileSync(
+      join(process.cwd(), 'coach', 'reference', 'scenarios.md'),
+      'utf-8'
+    )
 
-  const message = await client.messages.create({
-    model: 'claude-sonnet-4-5',
-    max_tokens: 1024,
-    messages: [
-      {
-        role: 'user',
-        content: `Generate a prospect persona for a cold call sales training simulation at ${difficulty} difficulty.
+    const message = await client.messages.create({
+      model: 'claude-sonnet-4-5',
+      max_tokens: 1024,
+      messages: [
+        {
+          role: 'user',
+          content: `Generate a prospect persona for a cold call sales training simulation at ${difficulty} difficulty.
 
 Rules:
 - Generate a realistic first and last name. Use diverse names — not always Anglo-Saxon.
@@ -61,22 +62,27 @@ Return ONLY a valid JSON object with no markdown, no explanation, no code fences
 
 Scenario pools:
 ${scenarioPools}`,
-      },
-    ],
-  })
+        },
+      ],
+    })
 
-  const content = message.content[0]
-  if (content.type !== 'text') {
-    return NextResponse.json({ error: 'Unexpected response type' }, { status: 500 })
-  }
+    const content = message.content[0]
+    if (content.type !== 'text') {
+      return NextResponse.json({ error: 'Unexpected response type' }, { status: 500 })
+    }
 
-  try {
-    const persona = JSON.parse(content.text)
-    return NextResponse.json(persona)
-  } catch {
-    return NextResponse.json(
-      { error: 'Failed to parse persona response', raw: content.text },
-      { status: 500 }
-    )
+    try {
+      const persona = JSON.parse(content.text)
+      return NextResponse.json(persona)
+    } catch {
+      return NextResponse.json(
+        { error: 'Failed to parse persona response', raw: content.text },
+        { status: 500 }
+      )
+    }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error('generate-persona failed:', message)
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
