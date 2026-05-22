@@ -47,15 +47,10 @@ export async function POST(req: NextRequest) {
   }: { persona: Persona; mode: string; repName: string; repHistory: Session[] } = await req.json()
 
   const identity = readCoach('coach/identity.md')
-  const rules = readCoach('coach/rules.md')
   const company = readCoach('coach/reference/company.md')
   const historyBlock = distillHistory(repHistory)
 
   const systemPrompt = `${identity}
-
----
-
-${rules}
 
 ---
 
@@ -85,7 +80,7 @@ Deliver Rex's full briefing now. Follow the GROW structure from your identity fi
 
   const stream = await client.messages.stream({
     model: 'claude-sonnet-4-5',
-    max_tokens: 1200,
+    max_tokens: 700,
     system: systemPrompt,
     messages: [{ role: 'user', content: 'Brief me.' }],
   })
