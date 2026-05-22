@@ -76,11 +76,11 @@ Rep goal for this session: ${persona.repGoal}
 What this prospect warms to: ${persona.likes.join('; ')}
 What puts this prospect off: ${persona.dislikes.join('; ')}
 
-Deliver Rex's full briefing now. Follow the GROW structure from your identity file. Write in paragraphs, not lists. No em dashes. Address ${repName} directly by name at least once. End on the single behavior you will be watching most closely in this session.`
+Deliver Rex's briefing now. Follow the GROW structure from your identity file. Write in paragraphs, not lists. No em dashes. Address ${repName} directly by name at least once. End on the single behavior you will be watching most closely in this session. Be tight — every sentence must earn its place. Cut anything that does not directly prepare ${repName} for this specific call.`
 
   const stream = await client.messages.stream({
     model: 'claude-haiku-4-5',
-    max_tokens: 700,
+    max_tokens: 600,
     system: systemPrompt,
     messages: [{ role: 'user', content: 'Brief me.' }],
   })
