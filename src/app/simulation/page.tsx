@@ -137,7 +137,7 @@ export default function SimulationPage() {
     return (
       <div className="min-h-screen bg-zinc-950 flex flex-col">
         {/* Call header */}
-        <div className="bg-zinc-900 border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
+        <div className="sticky top-0 z-10 bg-zinc-900 border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-zinc-700 flex items-center justify-center text-white text-sm font-semibold">
               {persona.name.charAt(0)}
