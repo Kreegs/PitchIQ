@@ -44,6 +44,10 @@ export default function BriefingPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ difficulty: storedDifficulty }),
         })
+        if (!personaRes.ok) {
+          const errData = await personaRes.json().catch(() => ({}))
+          throw new Error(`generate-persona failed (${personaRes.status}): ${errData.error ?? 'unknown'}`)
+        }
         const generatedPersona: Persona = await personaRes.json()
         setPersona(generatedPersona)
 
