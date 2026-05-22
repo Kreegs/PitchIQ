@@ -114,7 +114,35 @@ export default function BriefingPage() {
         </div>
       </nav>
 
-      <div className="max-w-2xl mx-auto px-6 py-12">
+      <div className="max-w-5xl mx-auto px-6 py-12 flex flex-col lg:flex-row gap-8 items-start">
+
+        {/* Company cheat sheet sidebar */}
+        <div className="lg:w-72 shrink-0 lg:sticky lg:top-6">
+          <div className="bg-white rounded-2xl border border-zinc-200 p-5">
+            <div className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-4">You're representing</div>
+            <div className="text-zinc-900 font-bold text-lg mb-1">Veriforge</div>
+            <div className="text-zinc-500 text-xs mb-4 leading-relaxed">
+              A SaaS platform that connects to existing manufacturing equipment and gives plant managers real-time visibility into line efficiency, downtime causes, and maintenance predictions. It makes the machinery already on the floor smarter — without replacing anything.
+            </div>
+            <div className="text-xs font-semibold text-zinc-700 mb-1">Who you're calling</div>
+            <div className="text-zinc-500 text-xs mb-4 leading-relaxed">
+              Operations directors and plant managers at mid-size manufacturers. Their pain: unplanned downtime and reactive maintenance eating 15–20% of production capacity.
+            </div>
+            <div className="text-xs font-semibold text-zinc-700 mb-1">Your hook</div>
+            <div className="text-zinc-500 text-xs mb-5 leading-relaxed">
+              Veriforge customers reduce unplanned downtime by an average of 34% in the first 90 days — or their money back.
+            </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+              <div className="text-amber-800 text-xs font-semibold mb-1">Note</div>
+              <div className="text-amber-700 text-xs leading-relaxed">
+                Product knowledge is not being tested. If you need to invent a specific feature detail to handle an objection, that's fine. What matters is how you run the call.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main briefing content */}
+        <div className="flex-1 min-w-0">
         {/* Prospect card */}
         {persona && (
           <div className="bg-white rounded-2xl border border-zinc-200 p-5 mb-8 flex items-start gap-4">
@@ -187,6 +215,7 @@ export default function BriefingPage() {
             </button>
           </div>
         )}
+        </div>{/* end main briefing content */}
       </div>
     </div>
   )
