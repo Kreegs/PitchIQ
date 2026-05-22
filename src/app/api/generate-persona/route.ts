@@ -71,7 +71,8 @@ ${scenarioPools}`,
     }
 
     try {
-      const persona = JSON.parse(content.text)
+      const text = content.text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim()
+      const persona = JSON.parse(text)
       return NextResponse.json(persona)
     } catch {
       return NextResponse.json(
