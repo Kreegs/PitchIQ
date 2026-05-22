@@ -26,13 +26,23 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: 'user',
-          content: `Generate a prospect persona for a cold call sales training simulation at ${difficulty} difficulty.
+          content: `Generate a prospect persona for a cold call sales training simulation at ${difficulty} difficulty. Session seed: ${Date.now()}.
 
 Rules:
-- Generate a realistic first and last name. Use diverse names — not always Anglo-Saxon.
+
+NAME — Pick one cultural origin from this list and generate a realistic name from it. Rotate unpredictably — do not default to South Asian or Anglo names. Origins to draw from: West African (e.g. Ghanaian, Nigerian), East Asian (Chinese, Korean, Japanese), Latino/Hispanic (Mexican, Colombian, Brazilian), Eastern European (Polish, Ukrainian, Romanian), Middle Eastern (Lebanese, Iranian, Turkish), Scandinavian, Irish/Scottish, Filipino, Vietnamese, Somali, Haitian. Do NOT use the name Priya, Raj, Sarah, John, or any other high-frequency default.
+
+COMPANY NAME — Use one of these structural patterns, chosen at random:
+- Founder surname + Manufacturing / Fabrication / Industries / Works (e.g. "Kowalski Fabrication", "Reyes Industries")
+- Geographic reference + product type (e.g. "Great Lakes Stamping", "High Desert Tooling")
+- Industrial material or process + short suffix (e.g. "Ironvale Casting", "Crestline Extrusion")
+Do NOT use patterns like "[Adjective] Solutions", "Apex [Anything]", "[Adjective] Industries", or "Global [Anything]" — these are banned.
+
+INDUSTRY — Pick one specific sub-type from this list at random. Do not repeat HVAC or food processing unless all others have been used:
+injection molding, metal stamping, die casting, precision machining, sheet metal fabrication, automotive parts, aerospace components, food processing, industrial packaging, pharmaceutical manufacturing, medical device manufacturing, rubber products, plastics extrusion, electronics assembly, textile manufacturing, wood products, chemical manufacturing, industrial coatings, hydraulic components, conveyor systems, agricultural equipment, HVAC components, pump manufacturing, valve manufacturing, filtration systems, power transmission components, wire and cable, printed circuit boards, glass products, ceramic manufacturing, composite materials.
+
+OTHER RULES:
 - Set gender as "male" or "female" (used only for voice selection).
-- Generate a plausible mid-size manufacturing company name (not a real company).
-- Generate a specific industry sub-type (e.g. injection molding, metal fabrication, food processing, industrial packaging).
 - Generate a company size between 200 and 2000 employees.
 - Select 1 disposition from the ${difficulty} tier in the pools below.
 - Select 1 opening line from the ${difficulty} tier in the pools below.
