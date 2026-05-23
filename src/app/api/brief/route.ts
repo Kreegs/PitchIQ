@@ -32,7 +32,7 @@ function distillHistory(history: Session[]): string {
 PREVIOUS SESSION HISTORY
 Sessions completed: ${history.length}
 Recent scores (last ${recent.length}): ${scores}
-Recurring Tier 1 failures: ${recurring.length > 0 ? recurring.join(', ') : 'none'}
+Recurring Tier 2 failures: ${recurring.length > 0 ? recurring.join(', ') : 'none'}
 Last session summary: ${last?.summary ?? 'none'}
 `.trim()
 }

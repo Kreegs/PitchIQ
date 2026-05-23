@@ -44,7 +44,7 @@ Reframe: "That's typically where we come in — not to replace what's working, b
 
 ## The Three Strikes Rule
 
-If the same objection appears three times in a single call, the rep must change approach on the third instance. Repetition is not persuasion. Repeating the same response louder or with different words is a Tier 1 failure.
+If the same objection appears three times in a single call, the rep must change approach on the third instance. Repetition is not persuasion. Repeating the same response louder or with different words is a Tier 2 failure.
 
 **First instance:** Handle with the Acknowledge-Reframe method.
 
@@ -78,6 +78,6 @@ Every call and email must end with a next step that meets all three criteria:
 "Let's stay in touch." — Not a next step.
 "I'll send something over." — What? When? Who follows up if there is no response?
 
-The next step must be agreed to by the prospect, not just stated by the rep. If the prospect says "sure, send it over" and the rep does not lock down a date or a response expectation, it is a soft close at best and a Tier 1 failure at worst.
+The next step must be agreed to by the prospect, not just stated by the rep. If the prospect says "sure, send it over" and the rep does not lock down a date or a response expectation, it is a soft close at best and a Tier 2 failure at worst.
 
 For cold email: the next step is a response the prospect commits to giving. "If you're open to a call, just reply with a time" is a soft ask. "I'll reach out Thursday to see if a 20-minute call makes sense" locks in a specific follow-up action with a date and a responsible party — the rep.

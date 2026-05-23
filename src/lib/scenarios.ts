@@ -59,6 +59,7 @@ export interface ActiveSession {
   repName: string
   persona: Persona
   transcript: TranscriptTurn[]
+  tier0Violation?: { rule: string; word: string }
 }
 
 export const ACTIVE_SESSION_KEY = 'veriforge_active_session'

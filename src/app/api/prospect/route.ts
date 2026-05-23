@@ -4,6 +4,23 @@ import { readFileSync } from 'fs'
 import { join } from 'path'
 import type { Persona, TranscriptTurn } from '@/lib/scenarios'
 
+function checkBannedWords(message: string): string | null {
+  try {
+    const raw = readFileSync(join(process.cwd(), 'coach/banned-words.txt'), 'utf-8')
+    const words = raw
+      .split('\n')
+      .map(w => w.trim().toLowerCase())
+      .filter(w => w && !w.startsWith('#'))
+    for (const word of words) {
+      const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      if (new RegExp(`\\b${escaped}\\w*\\b`, 'i').test(message)) return word
+    }
+  } catch {
+    // If file is missing, skip the check
+  }
+  return null
+}
+
 export async function POST(req: NextRequest) {
   const client = new Anthropic()
   const {
@@ -17,6 +34,18 @@ export async function POST(req: NextRequest) {
     latestRepMessage: string
     mode: string
   } = await req.json()
+
+  if (mode === 'call') {
+    const matched = checkBannedWords(latestRepMessage)
+    if (matched) {
+      return Response.json({
+        tier0: true,
+        rule: 'profanity',
+        word: matched,
+        prospectReply: "I'm going to stop you right there. That is completely inappropriate. This call is over.",
+      })
+    }
+  }
 
   const company = readFileSync(join(process.cwd(), 'coach/reference/company.md'), 'utf-8')
 

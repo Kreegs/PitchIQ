@@ -1,0 +1,21 @@
+# Banned Words List
+# One word or phrase per line. Case-insensitive.
+# Matches the listed word AND common derivatives (e.g. "fuck" also catches "fucking", "fucker").
+# Lines starting with # are ignored.
+#
+# Add or remove words to match your organization's standards.
+#
+# CAUTION with short/common roots:
+#   "ass"  will also match "assess", "asset", "assassin"
+#   "dick" will also match a prospect named Dick
+#   "hell" will also match "hello"
+#   "damn" and "crap" are borderline — some orgs allow them
+# The default list below avoids these false positives.
+
+fuck
+shit
+bitch
+cunt
+bastard
+asshole
+piss

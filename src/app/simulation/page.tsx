@@ -121,6 +121,27 @@ export default function SimulationPage() {
         }),
       })
 
+      const contentType = res.headers.get('content-type') ?? ''
+      if (contentType.includes('application/json')) {
+        const data = await res.json()
+        if (data.tier0) {
+          const goodbyeTurn: TranscriptTurn = { role: 'prospect', content: data.prospectReply }
+          const finalTranscript = [...updatedTranscript, goodbyeTurn]
+          setTranscript(finalTranscript)
+          const updated: ActiveSession = {
+            ...session,
+            transcript: finalTranscript,
+            tier0Violation: { rule: data.rule, word: data.word },
+          }
+          localStorage.setItem(ACTIVE_SESSION_KEY, JSON.stringify(updated))
+          audioRef.current?.pause()
+          audioRef.current = null
+          setCallEnded(true)
+          if (timerRef.current) clearInterval(timerRef.current)
+          return
+        }
+      }
+
       const reader = res.body!.getReader()
       const decoder = new TextDecoder()
       let prospectText = ''

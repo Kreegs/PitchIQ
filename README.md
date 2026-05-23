@@ -29,7 +29,7 @@ The rep can end the call at any point using the End Call button. The prospect ma
 
 **Voice mode (Chrome/Edge only):** A **Voice OFF** button appears in the call header. Click it to enable voice. Once on, a mic button appears next to the text input — click it and speak your response. The browser transcribes your speech and submits it automatically when you stop talking. The prospect's reply is spoken aloud using a voice matched to their gender. You can still type at any time while voice is enabled. Click **Voice ON** to turn it back off.
 
-**What Rex evaluates:** Six Tier 1 rules (no interrupting, matched energy, name usage, outcome-led opener, three strikes, defined next step) and four Tier 2 craft categories. Scored out of 100. Any Tier 1 violation caps the total at 60.
+**What Rex evaluates:** Six Tier 2 rules (no interrupting, matched energy, name usage, outcome-led opener, three strikes, defined next step) and Tier 3 craft categories. Scored out of 100. Any Tier 2 violation caps the total at 60.
 
 ### Cold Email
 
@@ -43,7 +43,7 @@ The prospect's reply signals one of three outcomes:
 
 The outcome is driven by the quality of the email. A sharp, personalized, outcome-led email with a specific ask earns a WIN or DRAW. A generic or vague email earns a DRAW or LOSS.
 
-**What Rex evaluates:** Five email-specific Tier 1 rules (energy, name usage, outcome-led opener, defined next step, no pressure tactics) and Tier 2 craft rules covering subject line quality, scanability, single CTA, and personalization. Scored out of 100 across four categories: Tier 1 compliance (30), Subject line & opening (25), Personalization & relevance (25), CTA / next step (20). Any Tier 1 violation caps the total at 55. Rex explains what would have moved the outcome up a tier.
+**What Rex evaluates:** Five email-specific Tier 2 rules (energy, name usage, outcome-led opener, defined next step, no pressure tactics) and Tier 3 craft rules covering subject line quality, scanability, single CTA, and personalization. Scored out of 100 across four categories: Tier 2 compliance (30), Subject line & opening (25), Personalization & relevance (25), CTA / next step (20). Any Tier 2 violation caps the total at 55. Rex explains what would have moved the outcome up a tier.
 
 ---
 
@@ -52,9 +52,9 @@ The outcome is driven by the quality of the email. A sharp, personalized, outcom
 ```
 /coach
   identity.md          Who the coach is — name, personality, tone, behavioral rules
-  rules.md             Cold call evaluation standards — Tier 1 and Tier 2 rules, scoring rubric
-  email-rules.md       Cold email evaluation standards — email-specific Tier 1/2 rules, WIN/DRAW/LOSS, scoring rubric
-  examples.md          Annotated call examples — strong call, Tier 1 failure, Tier 2 failure
+  rules.md             Cold call evaluation standards � Tier 0 through Tier 3 rules, scoring rubric
+  email-rules.md       Cold email evaluation standards — email-specific Tier 2/3 rules, WIN/DRAW/LOSS, scoring rubric
+  examples.md          Annotated call examples — strong call, Tier 2 failure, Tier 3 failure
   README.md            This file
   /reference
     company.md         The company context — product, ICP, objections, brand standards
@@ -173,7 +173,7 @@ Out of scope for v1, planned for future versions:
 
 - **Database persistence** — Supabase or similar, replacing localStorage with real accounts
 - **Authentication** — Rep accounts with login and history across devices
-- **Manager dashboard** — Session review, rep progress tracking, team-level Tier 1 heatmaps
+- **Manager dashboard** — Session review, rep progress tracking, team-level Tier 2 heatmaps
 - **ElevenLabs voice** — High-quality AI-generated prospect voice for cold call simulation
 - **Completion certification** — Pass/fail threshold with a shareable completion certificate
 - **Multi-company support** — Multiple company context sets within a single deployed instance
