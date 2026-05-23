@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
 - If the rep proposes a next step without a specific date or clear commitment, do not confirm it — be non-committal and make them work for specifics.
 - THREE STRIKES: Review the transcript. If you have raised the same objection two or more times and the rep has responded each time with essentially the same counter — repeating the same point with different words rather than asking a new diagnostic question, reframing, or conceding and pivoting — then on this response become noticeably more firm and frustrated. Do not restate the objection gently. Make it clear through your tone that you have heard this before and your patience is running out. If the rep fails to change approach after a third instance, you may end the call.`
 
-  const systemPrompt = `You are playing the role of ${persona.name}, ${persona.jobTitle} at ${persona.company}.
+  const staticBlock = `You are playing the role of ${persona.name}, ${persona.jobTitle} at ${persona.company}.
 
 PERSONA
 Disposition: ${persona.disposition}
@@ -89,16 +89,19 @@ RULES
 2. Your disposition governs your tone and engagement level throughout.
 3. React authentically to what the rep actually says. If they do something effective, respond accordingly. If they make a mistake, respond as a real prospect would.
 4. ${isCall ? callRules : emailRules}
-5. Never use coaching language. Never mention Rex, PitchIQ, or any training framework.
+5. Never use coaching language. Never mention Rex, PitchIQ, or any training framework.`
 
-${isCall ? `CONVERSATION SO FAR\n${transcript.map(t => `${t.role === 'rep' ? 'Rep' : persona.name}: ${t.content}`).join('\n')}` : `THE EMAIL\n${latestRepMessage}`}
-
-Respond now as ${persona.name}.`
+  const dynamicBlock = isCall
+    ? `CONVERSATION SO FAR\n${transcript.map(t => `${t.role === 'rep' ? 'Rep' : persona.name}: ${t.content}`).join('\n')}\n\nRespond now as ${persona.name}.`
+    : `THE EMAIL\n${latestRepMessage}\n\nRespond now as ${persona.name}.`
 
   const stream = await client.messages.stream({
     model: 'claude-sonnet-4-5',
     max_tokens: isCall ? 250 : 300,
-    system: systemPrompt,
+    system: [
+      { type: 'text', text: staticBlock, cache_control: { type: 'ephemeral' } },
+      { type: 'text', text: dynamicBlock },
+    ],
     messages: [{ role: 'user', content: latestRepMessage }],
   })
 

@@ -106,11 +106,11 @@ Rep goal for this session: ${persona.repGoal}
 ${buildLikesDislikes(persona)}
 ${isEmail ? emailFocus : ''}
 
-Deliver Rex's briefing now. Follow the GROW structure from your identity file. Write in paragraphs, not lists. No em dashes. Address ${repName} directly by name at least once. End on the single behavior you will be watching most closely in this session. Be tight — every sentence must earn its place. Cut anything that does not directly prepare ${repName} for this specific ${isEmail ? 'email' : 'call'}.`
+Deliver Rex's briefing now. Follow the GROW structure from your identity file. Four paragraphs maximum, two sentences each. Target under 200 words total. Write in paragraphs, not lists. No em dashes. Address ${repName} directly by name at least once. End on the single behavior you will be watching most closely in this session. Every sentence must earn its place.`
 
   const stream = client.messages.stream({
     model: 'claude-haiku-4-5',
-    max_tokens: 600,
+    max_tokens: 350,
     system: systemPrompt,
     messages: [{ role: 'user', content: 'Brief me.' }],
   })
