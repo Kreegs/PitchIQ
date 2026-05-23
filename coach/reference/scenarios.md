@@ -30,7 +30,7 @@ This file is plain text. No coding knowledge is required to modify it.
 
 The AI generates:
 - First and last name (realistic, diverse)
-- Gender (male or female — used for voice selection only)
+- Gender (male or female)
 - Company name (plausible mid-size manufacturer)
 - Industry sub-type (e.g. injection molding, metal fabrication, food processing)
 - Company size (200–2000 employees)
