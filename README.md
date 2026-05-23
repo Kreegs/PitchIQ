@@ -141,13 +141,17 @@ To change the coaching methodology: update the Phase 1 (Briefing) and Phase 3 (D
 
 A fully working hosted version is available to try without any setup. Select cold call or cold email, choose your difficulty level, and run a session end to end. Cold call sessions include live audio — the prospect speaks their replies aloud for a more realistic phone call experience.
 
+Online Demo Here: https://pitch-iq-mu.vercel.app/
+
 ---
 
 ## Local Deploy
 
 No application code is required to run the coach. Any AI platform with a persistent instruction field and file knowledge supports it. The steps are similar across platforms — the key difference is how each platform handles uploaded files.
 
-Online Demo Here: https://pitch-iq-mu.vercel.app/
+The Online Demo above has additional features, but the core decision making, rule sets and behavoirs are the same. 
+
+
 
 
 ### Claude Project
