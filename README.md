@@ -5,6 +5,7 @@
 - [How to Replace the Company Context](#how-to-replace-the-company-context)
 - [How to Add New Scenarios](#how-to-add-new-scenarios)
 - [How to Change the Coach Persona](#how-to-change-the-coach-persona)
+- [Online Demo Version](#online-demo-version)
 - [Local Deploy](#local-deploy)
 - [Known Limitations](#known-limitations)
 - [Roadmap](#roadmap)
@@ -133,6 +134,12 @@ Edit `identity.md`. The relevant sections are:
 If you rename the coach, update `identity.md` throughout. The coach's name is not referenced in any other file.
 
 To change the coaching methodology: update the Phase 1 (Briefing) and Phase 3 (Debrief) sections in `identity.md` and the relevant framework descriptions in `reference/frameworks.md`.
+
+---
+
+## Online Demo Version
+
+A fully working hosted version is available to try without any setup. Select cold call or cold email, choose your difficulty level, and run a session end to end. Cold call sessions include live audio — the prospect speaks their replies aloud for a more realistic phone call experience.
 
 ---
 
