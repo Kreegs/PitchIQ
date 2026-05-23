@@ -27,6 +27,8 @@ The prospect opens the call with their scripted opening line. The rep responds a
 
 The rep can end the call at any point using the End Call button. The prospect may also end the call if they run out of patience or the rep achieves the session goal. Either way, the session moves to debrief.
 
+**Voice mode (Chrome/Edge only):** A **Voice OFF** button appears in the call header. Click it to enable voice. Once on, a mic button appears next to the text input — click it and speak your response. The browser transcribes your speech and submits it automatically when you stop talking. The prospect's reply is spoken aloud using a voice matched to their gender. You can still type at any time while voice is enabled. Click **Voice ON** to turn it back off.
+
 **What Rex evaluates:** Six Tier 1 rules (no interrupting, matched energy, name usage, outcome-led opener, three strikes, defined next step) and four Tier 2 craft categories. Scored out of 100. Any Tier 1 violation caps the total at 60.
 
 ### Cold Email
