@@ -43,8 +43,6 @@ The prospect opens the call with their scripted opening line. The rep responds a
 
 The rep can end the call at any point using the End Call button. The prospect may also end the call if they run out of patience or the rep achieves the session goal. Either way, the session moves to debrief.
 
-**Voice mode (Chrome/Edge only):** A **Voice OFF** button appears in the call header. Click it to enable voice. Once on, a mic button appears next to the text input — click it and speak your response. The browser transcribes your speech and submits it automatically when you stop talking. The prospect's reply is spoken aloud using a voice matched to their gender. You can still type at any time while voice is enabled. Click **Voice ON** to turn it back off.
-
 **What Rex evaluates:** All four tiers apply. Scored out of 100 — Tier 2 violations cap at 60, Tier 1 scores zero, Tier 0 ends the call immediately.
 
 ### Cold Email
@@ -140,6 +138,8 @@ To change the coaching methodology: update the Phase 1 (Briefing) and Phase 3 (D
 ## Online Demo Version
 
 A fully working hosted version is available to try without any setup. Select cold call or cold email, choose your difficulty level, and run a session end to end. Cold call sessions include live audio — the prospect speaks their replies aloud for a more realistic phone call experience.
+
+**Voice mode (Chrome/Edge only):** A **Voice OFF** button appears in the call header. Click it to enable voice. Once on, a mic button appears next to the text input — click it and speak your response. The browser transcribes your speech and submits it automatically when you stop talking. The prospect's reply is spoken aloud using a voice matched to their gender. You can still type at any time while voice is enabled. Click **Voice ON** to turn it back off.
 
 Online Demo Here: https://pitch-iq-mu.vercel.app/
 
