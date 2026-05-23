@@ -26,6 +26,7 @@ export default function SimulationPage() {
   const didInit = useRef(false)
   const recognitionRef = useRef<any>(null)
   const synthRef = useRef<SpeechSynthesis | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
   const pendingSpeakRef = useRef('')
   const voiceEnabledRef = useRef(false)
 
@@ -138,23 +139,25 @@ export default function SimulationPage() {
         })
       }
 
-      if (voiceEnabledRef.current && synthRef.current && prospectText.trim()) {
-        const utt = new SpeechSynthesisUtterance(prospectText)
-        const voices = synthRef.current.getVoices()
-        const gender = session.persona.gender
-        const match = voices.find(v =>
-          gender === 'female'
-            ? /zira|samantha|victoria|karen|female/i.test(v.name)
-            : /david|mark|daniel|alex|male/i.test(v.name)
-        )
-        if (match) utt.voice = match
-        utt.rate = 1.0
-        utt.pitch = gender === 'female' ? 1.1 : 0.9
-        synthRef.current.speak(utt)
+      if (voiceEnabledRef.current && prospectText.trim()) {
+        const audioRes = await fetch('/api/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: prospectText, gender: session.persona.gender }),
+        })
+        if (audioRes.ok) {
+          const blob = await audioRes.blob()
+          const url = URL.createObjectURL(blob)
+          const audio = new Audio(url)
+          audioRef.current = audio
+          audio.onended = () => URL.revokeObjectURL(url)
+          audio.play()
+        }
       }
 
       if (session.mode === 'email' || detectCallEnd(prospectText)) {
-        synthRef.current?.cancel()
+        audioRef.current?.pause()
+        audioRef.current = null
         setCallEnded(true)
         if (timerRef.current) clearInterval(timerRef.current)
       }
@@ -168,7 +171,8 @@ export default function SimulationPage() {
   const startListening = useCallback(() => {
     const rec = recognitionRef.current
     if (!rec || isListening || isLoading || callEnded) return
-    synthRef.current?.cancel()
+    audioRef.current?.pause()
+    audioRef.current = null
     setIsListening(true)
     setInput('')
     rec.onresult = (e: any) => {
@@ -193,7 +197,8 @@ export default function SimulationPage() {
       voiceEnabledRef.current = next
       if (!next) {
         recognitionRef.current?.abort()
-        synthRef.current?.cancel()
+        audioRef.current?.pause()
+        audioRef.current = null
         setIsListening(false)
       }
       return next
