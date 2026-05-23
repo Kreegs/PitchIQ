@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const VOICE_IDS = {
   male:   'pNInz6obpgDQGcFmaJgB',
-  female: '21m00Tcm4TlvDq8ikWAM',
+  female: 'MF3mGyEYCl7XYWbV9V6O',
 }
 
 export async function POST(req: NextRequest) {
