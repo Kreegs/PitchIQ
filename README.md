@@ -1,5 +1,6 @@
 # The Coach Folder
 
+- [Simulation Modes](#simulation-modes)
 - [Folder Structure](#folder-structure)
 - [How to Replace the Company Context](#how-to-replace-the-company-context)
 - [How to Add New Scenarios](#how-to-add-new-scenarios)
@@ -16,12 +17,41 @@ The folder is designed to be portable. Drop it into a Claude project with no app
 
 ---
 
+## Simulation Modes
+
+Every session runs the same three-phase loop — Brief, Simulate, Debrief — but the simulation itself behaves differently depending on the mode selected at the start.
+
+### Cold Call
+
+The prospect opens the call with their scripted opening line. The rep responds and a back-and-forth conversation plays out in real time. The prospect stays in character throughout, raises objections naturally, and will not confirm a next step unless the rep earns one with a specific date and action. A timer runs for the duration of the call.
+
+The rep can end the call at any point using the End Call button. The prospect may also end the call if they run out of patience or the rep achieves the session goal. Either way, the session moves to debrief.
+
+**What Rex evaluates:** Six Tier 1 rules (no interrupting, matched energy, name usage, outcome-led opener, three strikes, defined next step) and four Tier 2 craft categories. Scored out of 100. Any Tier 1 violation caps the total at 60.
+
+### Cold Email
+
+The rep writes one cold email — subject line and body. The prospect reads it and sends one reply. There is no back-and-forth; a cold email gets one chance to land.
+
+The prospect's reply signals one of three outcomes:
+
+- **WIN** — the prospect agrees to a specific meeting with a date and time
+- **DRAW** — the prospect is engaged and wants more information but gives no commitment
+- **LOSS** — the prospect declines, goes cold, or asks to be removed
+
+The outcome is driven by the quality of the email. A sharp, personalized, outcome-led email with a specific ask earns a WIN or DRAW. A generic or vague email earns a DRAW or LOSS.
+
+**What Rex evaluates:** Five email-specific Tier 1 rules (energy, name usage, outcome-led opener, defined next step, no pressure tactics) and Tier 2 craft rules covering subject line quality, scanability, single CTA, and personalization. Scored out of 100 across four categories: Tier 1 compliance (30), Subject line & opening (25), Personalization & relevance (25), CTA / next step (20). Any Tier 1 violation caps the total at 55. Rex explains what would have moved the outcome up a tier.
+
+---
+
 ## Folder Structure
 
 ```
 /coach
   identity.md          Who the coach is — name, personality, tone, behavioral rules
-  rules.md             How the coach evaluates reps — Tier 1 and Tier 2 standards
+  rules.md             Cold call evaluation standards — Tier 1 and Tier 2 rules, scoring rubric
+  email-rules.md       Cold email evaluation standards — email-specific Tier 1/2 rules, WIN/DRAW/LOSS, scoring rubric
   examples.md          Annotated call examples — strong call, Tier 1 failure, Tier 2 failure
   README.md            This file
   /reference
