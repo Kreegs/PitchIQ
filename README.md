@@ -198,7 +198,6 @@ Out of scope for v1, planned for future versions:
 - **Database persistence** — Supabase or similar, replacing localStorage with real accounts
 - **Authentication** — Rep accounts with login and history across devices
 - **Manager dashboard** — Session review, rep progress tracking, team-level Tier 2 heatmaps
-- **ElevenLabs voice** — High-quality AI-generated prospect voice for cold call simulation
 - **Completion certification** — Pass/fail threshold with a shareable completion certificate
 - **Multi-company support** — Multiple company context sets within a single deployed instance
 - **Analytics** — Usage and performance tracking beyond localStorage session counts
