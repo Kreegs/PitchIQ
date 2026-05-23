@@ -50,6 +50,22 @@ export async function POST(req: NextRequest) {
   const company = readCoach('coach/reference/company.md')
   const historyBlock = distillHistory(repHistory)
 
+  function buildLikesDislikes(persona: Persona): string {
+    if (persona.difficulty === 'beginner') {
+      return `What this prospect warms to: ${persona.likes.join('; ')}
+What puts this prospect off: ${persona.dislikes.join('; ')}`
+    }
+    if (persona.difficulty === 'intermediate') {
+      return `What this prospect warms to (1 of 2 — the other you won't know going in): ${persona.likes[0]}
+What puts this prospect off (1 of 2 — the other you won't know going in): ${persona.dislikes[0]}
+Tell ${repName} there is one more like and one more dislike you are not giving them — they have to read the prospect and figure it out during the call.`
+    }
+    // advanced
+    return `What this prospect warms to (1 of 2 — the other you won't know going in): ${persona.likes[0]}
+What puts this prospect off: not disclosed — there are 2 dislikes and you are giving ${repName} none of them.
+Tell ${repName} you are giving them one like only. There is one more like and two dislikes they will have to identify and work around on their own.`
+  }
+
   const systemPrompt = `${identity}
 
 ---
@@ -73,8 +89,7 @@ Disposition: ${persona.disposition}
 Opening line this prospect will use: "${persona.openingLine}"
 Objections this prospect will raise: ${persona.objections.join('; ')}
 Rep goal for this session: ${persona.repGoal}
-What this prospect warms to: ${persona.likes.join('; ')}
-What puts this prospect off: ${persona.dislikes.join('; ')}
+${buildLikesDislikes(persona)}
 
 Deliver Rex's briefing now. Follow the GROW structure from your identity file. Write in paragraphs, not lists. No em dashes. Address ${repName} directly by name at least once. End on the single behavior you will be watching most closely in this session. Be tight — every sentence must earn its place. Cut anything that does not directly prepare ${repName} for this specific call.`
 
