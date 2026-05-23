@@ -212,6 +212,20 @@ export default function SimulationPage() {
     rec.start()
   }, [isListening, isLoading, callEnded, sendMessage])
 
+  useEffect(() => {
+    if (!voiceSupported) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code !== 'Space') return
+      if (!voiceEnabledRef.current) return
+      const tag = (e.target as HTMLElement).tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return
+      e.preventDefault()
+      startListening()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [voiceSupported, startListening])
+
   const toggleVoice = useCallback(() => {
     setVoiceEnabled(prev => {
       const next = !prev
@@ -309,6 +323,9 @@ export default function SimulationPage() {
         {/* Input */}
         {!callEnded ? (
           <div className="bg-zinc-900 border-t border-zinc-800 px-6 py-4">
+            {voiceEnabled && (
+              <p className="text-xs text-zinc-600 mb-2">Press Space to talk</p>
+            )}
             <div className="flex gap-3 items-center">
               <input
                 type="text"
