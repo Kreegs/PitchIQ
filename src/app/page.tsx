@@ -139,7 +139,7 @@ export default function Home() {
                 num: '03',
                 title: 'Debrief',
                 icon: '📊',
-                desc: 'Rex scores the call against Tier 1 standards and Tier 2 craft. Specific moments. Honest feedback. One thing to work on before the next session.',
+                desc: 'Rex scores the call against Tier 2 standards and Tier 3 craft. Specific moments. Honest feedback. One thing to work on before the next session.',
               },
             ].map(phase => (
               <div key={phase.num} className="bg-zinc-50 rounded-2xl p-8 border border-zinc-100 hover:border-green-200 transition-colors">
@@ -248,7 +248,7 @@ export default function Home() {
               },
               {
                 title: 'Scores what actually matters',
-                desc: 'Tier 1 violations cap your score at 60 regardless of how smooth the rest of the call was. Fundamentals first, always.',
+                desc: 'Tier 2 violations cap your score at 60 regardless of how smooth the rest of the call was. Fundamentals first, always.',
               },
               {
                 title: 'Memory built in',

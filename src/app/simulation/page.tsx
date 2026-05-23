@@ -18,9 +18,17 @@ export default function SimulationPage() {
   const [elapsed, setElapsed] = useState(0)
   const [isEmailStart, setIsEmailStart] = useState(false)
   const [subjectLine, setSubjectLine] = useState('')
+  const [voiceEnabled, setVoiceEnabled] = useState(false)
+  const [isListening, setIsListening] = useState(false)
+  const [voiceSupported, setVoiceSupported] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const didInit = useRef(false)
+  const recognitionRef = useRef<any>(null)
+  const synthRef = useRef<SpeechSynthesis | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const pendingSpeakRef = useRef('')
+  const voiceEnabledRef = useRef(false)
 
   useEffect(() => {
     if (didInit.current) return
@@ -50,6 +58,22 @@ export default function SimulationPage() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [transcript])
+
+  useEffect(() => {
+    const SpeechRecognitionImpl =
+      (window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition
+    if (SpeechRecognitionImpl && window.speechSynthesis) {
+      setVoiceSupported(true)
+      synthRef.current = window.speechSynthesis
+      if (speechSynthesis.onvoiceschanged !== undefined)
+        speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices()
+      const rec = new SpeechRecognitionImpl()
+      rec.continuous = false
+      rec.interimResults = false
+      rec.lang = 'en-US'
+      recognitionRef.current = rec
+    }
+  }, [])
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60)
@@ -97,6 +121,27 @@ export default function SimulationPage() {
         }),
       })
 
+      const contentType = res.headers.get('content-type') ?? ''
+      if (contentType.includes('application/json')) {
+        const data = await res.json()
+        if (data.tier0) {
+          const goodbyeTurn: TranscriptTurn = { role: 'prospect', content: data.prospectReply }
+          const finalTranscript = [...updatedTranscript, goodbyeTurn]
+          setTranscript(finalTranscript)
+          const updated: ActiveSession = {
+            ...session,
+            transcript: finalTranscript,
+            tier0Violation: { rule: data.rule, word: data.word },
+          }
+          localStorage.setItem(ACTIVE_SESSION_KEY, JSON.stringify(updated))
+          audioRef.current?.pause()
+          audioRef.current = null
+          setCallEnded(true)
+          if (timerRef.current) clearInterval(timerRef.current)
+          return
+        }
+      }
+
       const reader = res.body!.getReader()
       const decoder = new TextDecoder()
       let prospectText = ''
@@ -115,7 +160,25 @@ export default function SimulationPage() {
         })
       }
 
+      if (voiceEnabledRef.current && prospectText.trim()) {
+        const audioRes = await fetch('/api/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: prospectText, gender: session.persona.gender }),
+        })
+        if (audioRes.ok) {
+          const blob = await audioRes.blob()
+          const url = URL.createObjectURL(blob)
+          const audio = new Audio(url)
+          audioRef.current = audio
+          audio.onended = () => URL.revokeObjectURL(url)
+          audio.play()
+        }
+      }
+
       if (session.mode === 'email' || detectCallEnd(prospectText)) {
+        audioRef.current?.pause()
+        audioRef.current = null
         setCallEnded(true)
         if (timerRef.current) clearInterval(timerRef.current)
       }
@@ -125,6 +188,57 @@ export default function SimulationPage() {
       setIsLoading(false)
     }
   }, [session, input, isLoading, transcript])
+
+  const startListening = useCallback(() => {
+    const rec = recognitionRef.current
+    if (!rec || isListening || isLoading || callEnded) return
+    audioRef.current?.pause()
+    audioRef.current = null
+    setIsListening(true)
+    setInput('')
+    rec.onresult = (e: any) => {
+      const t = Array.from(e.results as any[]).map((r: any) => r[0].transcript).join(' ').trim()
+      setInput(t)
+      pendingSpeakRef.current = t
+    }
+    rec.onerror = () => setIsListening(false)
+    rec.onend = () => {
+      setIsListening(false)
+      if (pendingSpeakRef.current.trim()) {
+        sendMessage(pendingSpeakRef.current.trim())
+        pendingSpeakRef.current = ''
+      }
+    }
+    rec.start()
+  }, [isListening, isLoading, callEnded, sendMessage])
+
+  useEffect(() => {
+    if (!voiceSupported) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code !== 'Space') return
+      if (!voiceEnabledRef.current) return
+      const tag = (e.target as HTMLElement).tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return
+      e.preventDefault()
+      startListening()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [voiceSupported, startListening])
+
+  const toggleVoice = useCallback(() => {
+    setVoiceEnabled(prev => {
+      const next = !prev
+      voiceEnabledRef.current = next
+      if (!next) {
+        recognitionRef.current?.abort()
+        audioRef.current?.pause()
+        audioRef.current = null
+        setIsListening(false)
+      }
+      return next
+    })
+  }, [])
 
   const endSession = () => {
     if (!session) return
@@ -154,6 +268,16 @@ export default function SimulationPage() {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            {voiceSupported && (
+              <button
+                onClick={toggleVoice}
+                className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${
+                  voiceEnabled ? 'bg-green-500 text-zinc-950' : 'bg-zinc-800 text-zinc-400 hover:text-white'
+                }`}
+              >
+                {voiceEnabled ? 'Voice ON' : 'Voice OFF'}
+              </button>
+            )}
             {callEnded ? (
               <span className="text-red-400 text-sm font-medium">Call ended</span>
             ) : (
@@ -199,20 +323,37 @@ export default function SimulationPage() {
         {/* Input */}
         {!callEnded ? (
           <div className="bg-zinc-900 border-t border-zinc-800 px-6 py-4">
-            <div className="flex gap-3">
+            {voiceEnabled && (
+              <p className="text-xs text-zinc-600 mb-2">Press Space to talk</p>
+            )}
+            <div className="flex gap-3 items-center">
               <input
                 type="text"
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                disabled={isLoading}
-                placeholder="Type your response..."
+                disabled={isLoading || isListening}
+                placeholder={isListening ? 'Listening...' : voiceEnabled ? 'Or type your response...' : 'Type your response...'}
                 className="flex-1 bg-zinc-800 text-white placeholder-zinc-500 px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
               />
+              {voiceEnabled && voiceSupported && (
+                <button
+                  onClick={startListening}
+                  disabled={isLoading || isListening || callEnded}
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                    isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-zinc-700 hover:bg-zinc-600 text-zinc-300'
+                  }`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                    <path d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4z" />
+                    <path d="M5.5 9.643a.75.75 0 00-1.5 0V10c0 3.06 2.29 5.585 5.25 5.954V17.5h-1.5a.75.75 0 000 1.5h4.5a.75.75 0 000-1.5H10.5v-1.546A6.001 6.001 0 0016 10v-.357a.75.75 0 00-1.5 0V10a4.5 4.5 0 01-9 0v-.357z" />
+                  </svg>
+                </button>
+              )}
               <button
                 onClick={() => sendMessage()}
-                disabled={isLoading || !input.trim()}
-                className="bg-green-500 hover:bg-green-400 disabled:bg-zinc-700 disabled:text-zinc-500 text-zinc-950 font-bold px-5 py-3 rounded-xl transition-colors text-sm"
+                disabled={isLoading || isListening || !input.trim()}
+                className="bg-green-500 hover:bg-green-400 disabled:bg-zinc-700 disabled:text-zinc-500 text-zinc-950 font-bold px-5 py-3 rounded-xl transition-colors text-sm shrink-0"
               >
                 Send
               </button>

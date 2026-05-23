@@ -12,6 +12,9 @@ out/
 # Vercel
 .vercel
 
+# local planning docs
+PRD-*.md
+
 # misc
 .DS_Store
 *.pem

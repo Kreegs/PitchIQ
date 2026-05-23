@@ -23,8 +23,8 @@ type Sections = {
 
 const SECTION_MARKERS: Array<{ marker: string; key: keyof Sections; next: string | null }> = [
   { marker: '---OUTCOME---', key: 'outcome', next: '---REFLECTION---' },
-  { marker: '---REFLECTION---', key: 'reflection', next: '---TIER1---' },
-  { marker: '---TIER1---', key: 'tier1', next: '---WELL---' },
+  { marker: '---REFLECTION---', key: 'reflection', next: '---TIER2---' },
+  { marker: '---TIER2---', key: 'tier1', next: '---WELL---' },
   { marker: '---WELL---', key: 'well', next: '---COST---' },
   { marker: '---COST---', key: 'cost', next: '---ONE-THING---' },
   { marker: '---ONE-THING---', key: 'oneThing', next: '---SCORE---' },
@@ -116,6 +116,7 @@ export default function DebriefPage() {
         persona: active.persona,
         mode: active.mode,
         repName: active.repName,
+        tier0Violation: active.tier0Violation,
       }),
     })
     const reader = res.body!.getReader()
@@ -141,6 +142,7 @@ export default function DebriefPage() {
         mode: session.mode,
         repName: session.repName,
         repReflection: reflection,
+        tier0Violation: session.tier0Violation,
       }),
     })
 
@@ -309,7 +311,7 @@ export default function DebriefPage() {
 
         {s.tier1 && (
           <div className="bg-white rounded-2xl border border-zinc-200 p-6 mb-4">
-            <div className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-3">Tier 1 Review</div>
+            <div className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-3">Tier 2 Review</div>
             <div className="text-zinc-700 leading-relaxed text-sm whitespace-pre-wrap">{s.tier1}</div>
           </div>
         )}
@@ -345,13 +347,13 @@ export default function DebriefPage() {
                   {total}
                 </span>
                 <span className="text-zinc-400 text-xl mb-1">/ 100</span>
-                {total < 60 && <span className="text-xs text-red-500 font-medium ml-2 mb-1">Tier 1 cap applied</span>}
+                {total < 60 && <span className="text-xs text-red-500 font-medium ml-2 mb-1">Tier 2 cap applied</span>}
               </div>
               <div className="space-y-3">
                 {session.mode === 'email' ? (
                   <>
                     {breakdown.tier1Compliance !== undefined && (
-                      <ScoreBar label="Tier 1 compliance" earned={breakdown.tier1Compliance} max={30} />
+                      <ScoreBar label="Tier 2 compliance" earned={breakdown.tier1Compliance} max={30} />
                     )}
                     {breakdown.openingQuality !== undefined && (
                       <ScoreBar label="Subject line & opening" earned={breakdown.openingQuality} max={25} />
@@ -366,7 +368,7 @@ export default function DebriefPage() {
                 ) : (
                   <>
                     {breakdown.tier1Compliance !== undefined && (
-                      <ScoreBar label="Tier 1 compliance" earned={breakdown.tier1Compliance} max={40} />
+                      <ScoreBar label="Tier 2 compliance" earned={breakdown.tier1Compliance} max={40} />
                     )}
                     {breakdown.openingQuality !== undefined && (
                       <ScoreBar label="Opening quality" earned={breakdown.openingQuality} max={15} />

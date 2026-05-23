@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
     mode,
     repName,
     repReflection,
+    tier0Violation,
   }: {
     action: 'open' | 'respond'
     transcript: TranscriptTurn[]
@@ -30,6 +31,7 @@ export async function POST(req: NextRequest) {
     mode: string
     repName: string
     repReflection?: string
+    tier0Violation?: { rule: string; word: string }
   } = await req.json()
 
   const identity = readCoach('coach/identity.md')
@@ -50,7 +52,10 @@ Prospect disposition: ${persona.disposition}
 ${isEmail ? 'EMAIL AND REPLY' : 'TRANSCRIPT'}
 ${transcriptText}
 
-Open the debrief with a single reflective question directed at ${repName}. Do not give any assessment yet. Do not hint at what you think went well or badly. Ask them what they think happened — what worked and what they think cost them. ${isEmail ? 'Frame it around the email they wrote and the reply they received.' : ''} One question. No preamble. No em dashes. Address ${repName} by name.`
+${tier0Violation
+  ? `This session ended immediately because ${repName} used profanity on a professional sales call. Open the debrief with a single pointed question directed at ${repName} about what they were thinking when they used that language. Be direct, not gentle. One question. No preamble. No em dashes. Address ${repName} by name.`
+  : `Open the debrief with a single reflective question directed at ${repName}. Do not give any assessment yet. Do not hint at what you think went well or badly. Ask them what they think happened — what worked and what they think cost them. ${isEmail ? 'Frame it around the email they wrote and the reply they received.' : ''} One question. No preamble. No em dashes. Address ${repName} by name.`
+}`
 
     const stream = await client.messages.stream({
       model: 'claude-sonnet-4-5',
@@ -112,6 +117,8 @@ ${transcriptText}
 REP'S SELF-ASSESSMENT
 ${repReflection}
 
+${tier0Violation ? `TIER 0 VIOLATION: This session ended immediately because the rep used profanity ("${tier0Violation.word}") on a professional sales call. The session score is automatically zero. Lead every section of this debrief with this fact. Do not evaluate any other rules — the session did not progress far enough for them to matter.` : ''}
+
 Deliver the full debrief now. Use the section delimiters exactly as shown. Write in paragraphs within each section — no bullet lists. No em dashes. Be specific. Cite the ${isEmail ? 'email' : 'transcript'}.
 
 ---OUTCOME---
@@ -120,8 +127,8 @@ Deliver the full debrief now. Use the section delimiters exactly as shown. Write
 ---REFLECTION---
 [One paragraph responding to ${repName}'s self-assessment. Say whether they read the ${isEmail ? 'email exchange' : 'call'} accurately, where they were too hard or too easy on themselves.]
 
----TIER1---
-[Evaluate each Tier 1 rule. For each: state Pass or Fail, cite the exact moment from the ${isEmail ? 'email' : 'transcript'}. Write as flowing prose, one rule at a time. If there are no violations, say so plainly.]
+---TIER2---
+[Evaluate each Tier 2 rule. For each: state Pass or Fail, cite the exact moment from the ${isEmail ? 'email' : 'transcript'}. Write as flowing prose, one rule at a time. If there are no violations, say so plainly.]
 
 ---WELL---
 [Two or more specific things the rep did well, tied to exact moments. No false positives — if nothing was genuinely good, say so and explain why that is still useful information.]
@@ -133,7 +140,7 @@ Deliver the full debrief now. Use the section delimiters exactly as shown. Write
 [Single highest-leverage improvement for the next session. One thing only. Rex picks the most important. Not a list.]
 
 ---SCORE---
-[First line: total score out of 100. Then each sub-score on its own line: label, points earned, points available. Apply the Tier 1 cap if any Tier 1 rule was violated.]`
+[First line: total score out of 100. Then each sub-score on its own line: label, points earned, points available. Apply the Tier 2 cap if any Tier 2 rule was violated.]`
 
   const stream = await client.messages.stream({
     model: 'claude-sonnet-4-5',

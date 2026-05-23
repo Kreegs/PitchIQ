@@ -4,6 +4,23 @@ import { readFileSync } from 'fs'
 import { join } from 'path'
 import type { Persona, TranscriptTurn } from '@/lib/scenarios'
 
+function checkBannedWords(message: string): string | null {
+  try {
+    const raw = readFileSync(join(process.cwd(), 'coach/banned-words.txt'), 'utf-8')
+    const words = raw
+      .split('\n')
+      .map(w => w.trim().toLowerCase())
+      .filter(w => w && !w.startsWith('#'))
+    for (const word of words) {
+      const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      if (new RegExp(`\\b${escaped}\\w*\\b`, 'i').test(message)) return word
+    }
+  } catch {
+    // If file is missing, skip the check
+  }
+  return null
+}
+
 export async function POST(req: NextRequest) {
   const client = new Anthropic()
   const {
@@ -17,6 +34,18 @@ export async function POST(req: NextRequest) {
     latestRepMessage: string
     mode: string
   } = await req.json()
+
+  if (mode === 'call') {
+    const matched = checkBannedWords(latestRepMessage)
+    if (matched) {
+      return Response.json({
+        tier0: true,
+        rule: 'profanity',
+        word: matched,
+        prospectReply: "I'm going to stop you right there. That is completely inappropriate. This call is over.",
+      })
+    }
+  }
 
   const company = readFileSync(join(process.cwd(), 'coach/reference/company.md'), 'utf-8')
 
@@ -37,7 +66,8 @@ export async function POST(req: NextRequest) {
 - Stay in character at all times. Never break character. Never give feedback or mention coaching.
 - Raise your objections naturally as the conversation develops — not all at once.
 - Do not end the conversation unless: (a) the rep earns a specific next step with a date and action, (b) you have genuinely run out of patience, or (c) the rep signals they are done.
-- If the rep proposes a next step without a specific date or clear commitment, do not confirm it — be non-committal and make them work for specifics.`
+- If the rep proposes a next step without a specific date or clear commitment, do not confirm it — be non-committal and make them work for specifics.
+- THREE STRIKES: Review the transcript. If you have raised the same objection two or more times and the rep has responded each time with essentially the same counter — repeating the same point with different words rather than asking a new diagnostic question, reframing, or conceding and pivoting — then on this response become noticeably more firm and frustrated. Do not restate the objection gently. Make it clear through your tone that you have heard this before and your patience is running out. If the rep fails to change approach after a third instance, you may end the call.`
 
   const systemPrompt = `You are playing the role of ${persona.name}, ${persona.jobTitle} at ${persona.company}.
 
