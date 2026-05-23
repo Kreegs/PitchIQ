@@ -30,12 +30,16 @@ export async function POST(req: NextRequest) {
 
 Rules:
 
+GENDER — First, randomly pick gender: 50% male, 50% female. Use the session seed to make this truly random — do not default to male. Then choose a name that matches the selected gender.
+
 NAME — Pick either Western or Hispanic origin (roughly 60% Western, 40% Hispanic). Use realistic, naturally pronounceable American names only.
 
-Western first names (pick from or use similar): Mike, Dave, Steve, Brian, Kevin, Scott, Jeff, Craig, Todd, Gary, Brett, Kyle, Greg, Tom, Chris, Dan, Mark, Jim, Bob, Ryan, Kate, Lisa, Karen, Diane, Susan, Pam, Julie, Brenda, Carol, Donna, Amy, Sandra, Michelle, Melissa, Laura, Heather, Tracy, Jen, Beth, Gail / Irish-Scottish: Sean, Patrick, Brendan, Colleen, Bridget / Italian: Tony, Marco, Vince, Carla, Rosa / German: Kurt, Hans, Werner, Heidi / Scandinavian: Erik, Lars, Ingrid, Bjorn
+Western male first names (pick from or use similar): Mike, Dave, Steve, Brian, Kevin, Scott, Jeff, Craig, Todd, Gary, Brett, Kyle, Greg, Tom, Chris, Dan, Mark, Jim, Bob, Ryan / Irish-Scottish: Sean, Patrick, Brendan / Italian: Tony, Marco, Vince / German: Kurt, Hans, Werner / Scandinavian: Erik, Lars, Bjorn
+Western female first names (pick from or use similar): Kate, Lisa, Karen, Diane, Susan, Pam, Julie, Brenda, Carol, Donna, Amy, Sandra, Michelle, Melissa, Laura, Heather, Tracy, Jen, Beth, Gail / Irish-Scottish: Colleen, Bridget / Italian: Carla, Rosa / German: Heidi / Scandinavian: Ingrid
 Western last names (pick from or use similar): Anderson, Thompson, Williams, Johnson, Davis, Martin, Harris, Wilson, Taylor, Moore, Jackson, White, Clark, Lewis, Walker, Hall, Allen, Young, King, Wright, Baker, Nelson, Carter, Mitchell, Perez, Roberts, Campbell, Parker, Evans, Edwards, Collins, Stewart, Morris, Rogers, Reed, Cook, Morgan, Bell, Murphy, Bailey, Rivera, Cooper, Richardson, Cox, Howard, Ward, Torres, Peterson, Gray, Ramirez
 
-Hispanic first names (pick from or use similar): Carlos, Miguel, Jose, Luis, Jorge, Roberto, Ricardo, Eduardo, Fernando, Diego, Alejandro, Andres, Hector, Javier, Manuel, Marco, Pablo, Victor, Omar, Ruben / Female: Maria, Ana, Rosa, Carmen, Elena, Sofia, Daniela, Adriana, Lucia, Isabel, Valentina, Gabriela, Monica, Patricia, Veronica, Gloria, Martha, Sandra, Claudia, Yolanda
+Hispanic male first names (pick from or use similar): Carlos, Miguel, Jose, Luis, Jorge, Roberto, Ricardo, Eduardo, Fernando, Diego, Alejandro, Andres, Hector, Javier, Manuel, Marco, Pablo, Victor, Omar, Ruben
+Hispanic female first names (pick from or use similar): Maria, Ana, Rosa, Carmen, Elena, Sofia, Daniela, Adriana, Lucia, Isabel, Valentina, Gabriela, Monica, Patricia, Veronica, Gloria, Martha, Sandra, Claudia, Yolanda
 Hispanic last names (pick from or use similar): Garcia, Rodriguez, Martinez, Lopez, Hernandez, Gonzalez, Perez, Sanchez, Ramirez, Torres, Flores, Rivera, Gomez, Diaz, Reyes, Cruz, Morales, Ortiz, Gutierrez, Chavez, Ramos, Mendoza, Castillo, Vargas, Jimenez, Moreno, Rojas, Herrera, Medina, Aguilar, Delgado, Castro, Vega, Ruiz, Salazar, Fuentes, Campos, Avila, Rios, Navarro
 
 Do NOT combine names from different origins (e.g. no "Lars Garcia" or "Miguel Thompson"). Do NOT use overused defaults like Sarah Smith, John Davis, or Maria Rodriguez.
@@ -50,7 +54,7 @@ INDUSTRY — Pick one specific sub-type from this list at random. Do not repeat 
 injection molding, metal stamping, die casting, precision machining, sheet metal fabrication, automotive parts, aerospace components, food processing, industrial packaging, pharmaceutical manufacturing, medical device manufacturing, rubber products, plastics extrusion, electronics assembly, textile manufacturing, wood products, chemical manufacturing, industrial coatings, hydraulic components, conveyor systems, agricultural equipment, HVAC components, pump manufacturing, valve manufacturing, filtration systems, power transmission components, wire and cable, printed circuit boards, glass products, ceramic manufacturing, composite materials.
 
 OTHER RULES:
-- Set gender as "male" or "female" (used only for voice selection).
+- Gender was selected above — use that value here (used only for voice selection).
 - Generate a company size between 200 and 2000 employees.
 - Select 1 disposition from the ${difficulty} tier in the pools below.
 - Select 1 opening line from the ${difficulty} tier in the pools below.
