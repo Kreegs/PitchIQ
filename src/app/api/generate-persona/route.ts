@@ -30,7 +30,15 @@ export async function POST(req: NextRequest) {
 
 Rules:
 
-NAME — Pick one cultural origin from this list and generate a realistic name from it. Rotate unpredictably — do not default to South Asian or Anglo names. Origins to draw from: West African (e.g. Ghanaian, Nigerian), East Asian (Chinese, Korean, Japanese), Latino/Hispanic (Mexican, Colombian, Brazilian), Eastern European (Polish, Ukrainian, Romanian), Middle Eastern (Lebanese, Iranian, Turkish), Scandinavian, Irish/Scottish, Filipino, Vietnamese, Somali, Haitian. Do NOT use the name Priya, Raj, Sarah, John, or any other high-frequency default.
+NAME — Pick either Western or Hispanic origin (roughly 60% Western, 40% Hispanic). Use realistic, naturally pronounceable American names only.
+
+Western first names (pick from or use similar): Mike, Dave, Steve, Brian, Kevin, Scott, Jeff, Craig, Todd, Gary, Brett, Kyle, Greg, Tom, Chris, Dan, Mark, Jim, Bob, Ryan, Kate, Lisa, Karen, Diane, Susan, Pam, Julie, Brenda, Carol, Donna, Amy, Sandra, Michelle, Melissa, Laura, Heather, Tracy, Jen, Beth, Gail / Irish-Scottish: Sean, Patrick, Brendan, Colleen, Bridget / Italian: Tony, Marco, Vince, Carla, Rosa / German: Kurt, Hans, Werner, Heidi / Scandinavian: Erik, Lars, Ingrid, Bjorn
+Western last names (pick from or use similar): Anderson, Thompson, Williams, Johnson, Davis, Martin, Harris, Wilson, Taylor, Moore, Jackson, White, Clark, Lewis, Walker, Hall, Allen, Young, King, Wright, Baker, Nelson, Carter, Mitchell, Perez, Roberts, Campbell, Parker, Evans, Edwards, Collins, Stewart, Morris, Rogers, Reed, Cook, Morgan, Bell, Murphy, Bailey, Rivera, Cooper, Richardson, Cox, Howard, Ward, Torres, Peterson, Gray, Ramirez
+
+Hispanic first names (pick from or use similar): Carlos, Miguel, Jose, Luis, Jorge, Roberto, Ricardo, Eduardo, Fernando, Diego, Alejandro, Andres, Hector, Javier, Manuel, Marco, Pablo, Victor, Omar, Ruben / Female: Maria, Ana, Rosa, Carmen, Elena, Sofia, Daniela, Adriana, Lucia, Isabel, Valentina, Gabriela, Monica, Patricia, Veronica, Gloria, Martha, Sandra, Claudia, Yolanda
+Hispanic last names (pick from or use similar): Garcia, Rodriguez, Martinez, Lopez, Hernandez, Gonzalez, Perez, Sanchez, Ramirez, Torres, Flores, Rivera, Gomez, Diaz, Reyes, Cruz, Morales, Ortiz, Gutierrez, Chavez, Ramos, Mendoza, Castillo, Vargas, Jimenez, Moreno, Rojas, Herrera, Medina, Aguilar, Delgado, Castro, Vega, Ruiz, Salazar, Fuentes, Campos, Avila, Rios, Navarro
+
+Do NOT combine names from different origins (e.g. no "Lars Garcia" or "Miguel Thompson"). Do NOT use overused defaults like Sarah Smith, John Davis, or Maria Rodriguez.
 
 COMPANY NAME — Use one of these structural patterns, chosen at random:
 - Founder surname + Manufacturing / Fabrication / Industries / Works (e.g. "Kowalski Fabrication", "Reyes Industries")
