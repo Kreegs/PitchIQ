@@ -1,4 +1,4 @@
-# The Coach Folder
+# PitchIQ
 
 - [Simulation Modes](#simulation-modes)
 - [Folder Structure](#folder-structure)
