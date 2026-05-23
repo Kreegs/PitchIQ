@@ -10,10 +10,36 @@ const objectionCountByDifficulty: Record<Difficulty, string> = {
   advanced: '2 or 3',
 }
 
+const NAMES = {
+  western: {
+    male:   ['Mike','Dave','Steve','Brian','Kevin','Scott','Jeff','Craig','Todd','Gary','Kyle','Tom','Chris','Dan','Mark','Jim','Bob','Ryan','Sean','Patrick','Brendan','Tony','Marco','Vince','Kurt','Hans','Werner','Erik','Lars','Bjorn'],
+    female: ['Kate','Lisa','Karen','Diane','Susan','Pam','Julie','Brenda','Carol','Donna','Amy','Sandra','Michelle','Melissa','Laura','Tracy','Jen','Beth','Gail','Colleen','Bridget','Carla','Rosa','Heidi','Ingrid'],
+    last:   ['Anderson','Thompson','Williams','Johnson','Martin','Harris','Wilson','Taylor','Moore','Jackson','White','Clark','Lewis','Walker','Hall','Allen','Young','King','Wright','Baker','Nelson','Carter','Mitchell','Roberts','Campbell','Parker','Evans','Edwards','Collins','Stewart','Morris','Rogers','Reed','Cook','Morgan','Bell','Murphy','Bailey','Cooper','Richardson','Cox','Howard','Ward','Peterson','Gray'],
+  },
+  hispanic: {
+    male:   ['Carlos','Miguel','Jose','Luis','Jorge','Roberto','Ricardo','Eduardo','Fernando','Diego','Alejandro','Andres','Hector','Javier','Manuel','Pablo','Victor','Omar','Ruben'],
+    female: ['Maria','Ana','Rosa','Carmen','Elena','Sofia','Daniela','Adriana','Lucia','Isabel','Valentina','Gabriela','Monica','Patricia','Veronica','Gloria','Martha','Claudia','Yolanda'],
+    last:   ['Garcia','Rodriguez','Martinez','Lopez','Hernandez','Gonzalez','Sanchez','Torres','Flores','Rivera','Gomez','Diaz','Reyes','Cruz','Morales','Ortiz','Gutierrez','Chavez','Ramos','Mendoza','Castillo','Vargas','Jimenez','Moreno','Rojas','Herrera','Medina','Aguilar','Delgado','Castro','Vega','Ruiz','Salazar','Fuentes','Campos','Avila','Rios','Navarro'],
+  },
+}
+
+function pick<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)]
+}
+
+function generateName(): { name: string; gender: 'male' | 'female' } {
+  const gender: 'male' | 'female' = Math.random() < 0.5 ? 'male' : 'female'
+  const origin: 'western' | 'hispanic' = Math.random() < 0.6 ? 'western' : 'hispanic'
+  const first = pick(NAMES[origin][gender])
+  const last = pick(NAMES[origin].last)
+  return { name: `${first} ${last}`, gender }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const client = new Anthropic()
     const { difficulty }: { difficulty: Difficulty } = await req.json()
+    const { name, gender } = generateName()
 
     const scenarioPools = readFileSync(
       join(process.cwd(), 'coach', 'reference', 'scenarios.md'),
@@ -26,23 +52,13 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: 'user',
-          content: `Generate a prospect persona for a cold call sales training simulation at ${difficulty} difficulty. Session seed: ${Date.now()}.
+          content: `Generate a prospect persona for a cold call sales training simulation at ${difficulty} difficulty.
+
+The prospect's name and gender have already been assigned — use them exactly as given:
+- name: "${name}"
+- gender: "${gender}"
 
 Rules:
-
-GENDER — First, randomly pick gender: 50% male, 50% female. Use the session seed to make this truly random — do not default to male. Then choose a name that matches the selected gender.
-
-NAME — Pick either Western or Hispanic origin (roughly 60% Western, 40% Hispanic). Use realistic, naturally pronounceable American names only.
-
-Western male first names (pick from or use similar): Mike, Dave, Steve, Brian, Kevin, Scott, Jeff, Craig, Todd, Gary, Brett, Kyle, Greg, Tom, Chris, Dan, Mark, Jim, Bob, Ryan / Irish-Scottish: Sean, Patrick, Brendan / Italian: Tony, Marco, Vince / German: Kurt, Hans, Werner / Scandinavian: Erik, Lars, Bjorn
-Western female first names (pick from or use similar): Kate, Lisa, Karen, Diane, Susan, Pam, Julie, Brenda, Carol, Donna, Amy, Sandra, Michelle, Melissa, Laura, Heather, Tracy, Jen, Beth, Gail / Irish-Scottish: Colleen, Bridget / Italian: Carla, Rosa / German: Heidi / Scandinavian: Ingrid
-Western last names (pick from or use similar): Anderson, Thompson, Williams, Johnson, Davis, Martin, Harris, Wilson, Taylor, Moore, Jackson, White, Clark, Lewis, Walker, Hall, Allen, Young, King, Wright, Baker, Nelson, Carter, Mitchell, Perez, Roberts, Campbell, Parker, Evans, Edwards, Collins, Stewart, Morris, Rogers, Reed, Cook, Morgan, Bell, Murphy, Bailey, Rivera, Cooper, Richardson, Cox, Howard, Ward, Torres, Peterson, Gray, Ramirez
-
-Hispanic male first names (pick from or use similar): Carlos, Miguel, Jose, Luis, Jorge, Roberto, Ricardo, Eduardo, Fernando, Diego, Alejandro, Andres, Hector, Javier, Manuel, Marco, Pablo, Victor, Omar, Ruben
-Hispanic female first names (pick from or use similar): Maria, Ana, Rosa, Carmen, Elena, Sofia, Daniela, Adriana, Lucia, Isabel, Valentina, Gabriela, Monica, Patricia, Veronica, Gloria, Martha, Sandra, Claudia, Yolanda
-Hispanic last names (pick from or use similar): Garcia, Rodriguez, Martinez, Lopez, Hernandez, Gonzalez, Perez, Sanchez, Ramirez, Torres, Flores, Rivera, Gomez, Diaz, Reyes, Cruz, Morales, Ortiz, Gutierrez, Chavez, Ramos, Mendoza, Castillo, Vargas, Jimenez, Moreno, Rojas, Herrera, Medina, Aguilar, Delgado, Castro, Vega, Ruiz, Salazar, Fuentes, Campos, Avila, Rios, Navarro
-
-Do NOT combine names from different origins (e.g. no "Lars Garcia" or "Miguel Thompson"). Do NOT use overused defaults like Sarah Smith, John Davis, or Maria Rodriguez.
 
 COMPANY NAME — Use one of these structural patterns, chosen at random:
 - Founder surname + Manufacturing / Fabrication / Industries / Works (e.g. "Kowalski Fabrication", "Reyes Industries")
@@ -54,7 +70,6 @@ INDUSTRY — Pick one specific sub-type from this list at random. Do not repeat 
 injection molding, metal stamping, die casting, precision machining, sheet metal fabrication, automotive parts, aerospace components, food processing, industrial packaging, pharmaceutical manufacturing, medical device manufacturing, rubber products, plastics extrusion, electronics assembly, textile manufacturing, wood products, chemical manufacturing, industrial coatings, hydraulic components, conveyor systems, agricultural equipment, HVAC components, pump manufacturing, valve manufacturing, filtration systems, power transmission components, wire and cable, printed circuit boards, glass products, ceramic manufacturing, composite materials.
 
 OTHER RULES:
-- Gender was selected above — use that value here (used only for voice selection).
 - Generate a company size between 200 and 2000 employees.
 - Select 1 disposition from the ${difficulty} tier in the pools below.
 - Select 1 opening line from the ${difficulty} tier in the pools below.
@@ -66,8 +81,8 @@ OTHER RULES:
 
 Return ONLY a valid JSON object with no markdown, no explanation, no code fences. Exact structure:
 {
-  "name": "string",
-  "gender": "male" or "female",
+  "name": "${name}",
+  "gender": "${gender}",
   "jobTitle": "string",
   "company": "string",
   "industry": "string",
