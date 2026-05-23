@@ -21,6 +21,21 @@ The folder is designed to be portable. Drop it into a Claude project with no app
 
 Every session runs the same three-phase loop — Brief, Simulate, Debrief — but the simulation itself behaves differently depending on the mode selected at the start.
 
+### Evaluation Tiers
+
+Rex evaluates every session against a four-tier system defined in `coach/rules.md`. The tiers are fully configurable — adjust the rules, rewrite violations, or change scoring thresholds to match your organisation's standards. No code changes required.
+
+| Tier | Name | Effect |
+|---|---|---|
+| **Tier 0** | Hard Stops | Call ends immediately, score is zero. The banned word list is managed in `coach/banned-words.txt`. |
+| **Tier 1** | Zero-Score Violations | Call continues, score is zero. For serious conduct that warrants failure without ending the session. |
+| **Tier 2** | Critical Rules | Score capped at 60. The non-negotiable fundamentals every rep must get right. |
+| **Tier 3** | Craft Rules | Noted and factored into the score. The refinements that separate good reps from great ones. |
+
+Tier 0 and Tier 1 are call-specific. Email sessions start at Tier 2.
+
+---
+
 ### Cold Call
 
 The prospect opens the call with their scripted opening line. The rep responds and a back-and-forth conversation plays out in real time. The prospect stays in character throughout, raises objections naturally, and will not confirm a next step unless the rep earns one with a specific date and action. A timer runs for the duration of the call.
@@ -29,7 +44,7 @@ The rep can end the call at any point using the End Call button. The prospect ma
 
 **Voice mode (Chrome/Edge only):** A **Voice OFF** button appears in the call header. Click it to enable voice. Once on, a mic button appears next to the text input — click it and speak your response. The browser transcribes your speech and submits it automatically when you stop talking. The prospect's reply is spoken aloud using a voice matched to their gender. You can still type at any time while voice is enabled. Click **Voice ON** to turn it back off.
 
-**What Rex evaluates:** Six Tier 2 rules (no interrupting, matched energy, name usage, outcome-led opener, three strikes, defined next step) and Tier 3 craft categories. Scored out of 100. Any Tier 2 violation caps the total at 60.
+**What Rex evaluates:** All four tiers apply. Scored out of 100 — Tier 2 violations cap at 60, Tier 1 scores zero, Tier 0 ends the call immediately.
 
 ### Cold Email
 
@@ -43,7 +58,15 @@ The prospect's reply signals one of three outcomes:
 
 The outcome is driven by the quality of the email. A sharp, personalized, outcome-led email with a specific ask earns a WIN or DRAW. A generic or vague email earns a DRAW or LOSS.
 
-**What Rex evaluates:** Five email-specific Tier 2 rules (energy, name usage, outcome-led opener, defined next step, no pressure tactics) and Tier 3 craft rules covering subject line quality, scanability, single CTA, and personalization. Scored out of 100 across four categories: Tier 2 compliance (30), Subject line & opening (25), Personalization & relevance (25), CTA / next step (20). Any Tier 2 violation caps the total at 55. Rex explains what would have moved the outcome up a tier.
+**What Rex evaluates:** Tier 2 and Tier 3 only — Tier 0 and Tier 1 are call-specific and do not apply. Rex identifies the outcome as WIN, DRAW, or LOSS before scoring. Scored out of 100 across four categories: Tier 2 compliance (30), Subject line & opening (25), Personalization & relevance (25), CTA / next step (20). Tier 2 violations cap at 55.
+
+---
+
+## About Your Coach
+
+Rex Calloway is the default coach — a direct, plain-spoken former B2B account executive who spent twelve years closing deals before moving into coaching. His personality, voice, and behavioral rules are defined in `coach/identity.md` and can be changed without touching any code.
+
+Rex structures every briefing around the GROW model — Goal, Reality, Options, Will — without naming it to the rep, using it to orient them on the prospect and the one behavior he will watch most closely. In the debrief, he delivers feedback using SBID: the specific Situation in the transcript, the exact Behavior the rep showed, the Impact it had on the call, and a Direction that pushes the rep toward better thinking without scripting the answer. Across both phases, Rex coaches four core sales frameworks: the Outcome-First Opening Structure, the Acknowledge-Reframe method for objection handling, the Three Strikes Rule, and the Defined Next Step Formula. He picks the highest-leverage issue per session and goes deep on one thing — not a checklist of everything that went wrong.
 
 ---
 
@@ -52,7 +75,7 @@ The outcome is driven by the quality of the email. A sharp, personalized, outcom
 ```
 /coach
   identity.md          Who the coach is — name, personality, tone, behavioral rules
-  rules.md             Cold call evaluation standards � Tier 0 through Tier 3 rules, scoring rubric
+  rules.md             Cold call evaluation standards � Tier 0 through Tier 3 rules, scoring rubric
   email-rules.md       Cold email evaluation standards — email-specific Tier 2/3 rules, WIN/DRAW/LOSS, scoring rubric
   examples.md          Annotated call examples — strong call, Tier 2 failure, Tier 3 failure
   README.md            This file
@@ -117,6 +140,7 @@ To change the coaching methodology: update the Phase 1 (Briefing) and Phase 3 (D
 
 No application code is required to run the coach. Any AI platform with a persistent instruction field and file knowledge supports it. The steps are similar across platforms — the key difference is how each platform handles uploaded files.
 
+
 ### Claude Project
 
 Claude puts all uploaded files directly into context on every turn, so the coach behaves consistently.
@@ -130,7 +154,7 @@ Claude puts all uploaded files directly into context on every turn, so the coach
    - `reference/scenarios.md`
    - `reference/frameworks.md`
 3. In the Project Instructions field, add: `You are Rex. Follow identity.md exactly.`
-4. Start a conversation and type `begin` to open a session.
+4. Start a conversation and type something like `I am [Name] and I want to start a beginner cold call` to open a session.
 
 To update the coach, re-upload the relevant file. No deploy step is required.
 
@@ -141,7 +165,7 @@ Gemini also puts uploaded files directly into context, so the process and behavi
 1. Go to [gemini.google.com](https://gemini.google.com), open Gems in the sidebar, and create a new Gem.
 2. Upload the same six files listed above.
 3. In the Instructions field, add: `You are Rex. Follow the identity file exactly.`
-4. Save and start a conversation with `begin`.
+4. Save and start a conversation with `I am [Name] and I want to start a beginner cold call`.
 
 To update the coach, re-upload the relevant file.
 
@@ -153,7 +177,7 @@ ChatGPT uses retrieval (RAG) for knowledge files — it searches for relevant ex
 2. Open the Configure tab.
 3. In the Instructions field, paste the full contents of `identity.md` and `rules.md`. Add the line `You are Rex.` at the top.
 4. Upload the remaining files (`examples.md`, `reference/company.md`, `reference/scenarios.md`, `reference/frameworks.md`) to Knowledge, accepting that retrieval may occasionally miss content.
-5. Save and start a conversation with `begin`.
+5. Save and start a conversation with `I am [Name] and I want to start a beginner cold call` .
 
 If the Instructions field hits the character limit, keep `identity.md` and move `rules.md` to Knowledge — the coaching persona is more important than the scoring rubric to have in full context.
 

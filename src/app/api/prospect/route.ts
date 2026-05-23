@@ -66,7 +66,8 @@ export async function POST(req: NextRequest) {
 - Stay in character at all times. Never break character. Never give feedback or mention coaching.
 - Raise your objections naturally as the conversation develops — not all at once.
 - Do not end the conversation unless: (a) the rep earns a specific next step with a date and action, (b) you have genuinely run out of patience, or (c) the rep signals they are done.
-- If the rep proposes a next step without a specific date or clear commitment, do not confirm it — be non-committal and make them work for specifics.`
+- If the rep proposes a next step without a specific date or clear commitment, do not confirm it — be non-committal and make them work for specifics.
+- THREE STRIKES: Review the transcript. If you have raised the same objection two or more times and the rep has responded each time with essentially the same counter — repeating the same point with different words rather than asking a new diagnostic question, reframing, or conceding and pivoting — then on this response become noticeably more firm and frustrated. Do not restate the objection gently. Make it clear through your tone that you have heard this before and your patience is running out. If the rep fails to change approach after a third instance, you may end the call.`
 
   const systemPrompt = `You are playing the role of ${persona.name}, ${persona.jobTitle} at ${persona.company}.
 
