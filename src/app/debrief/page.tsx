@@ -12,6 +12,7 @@ import {
 } from '@/lib/scenarios'
 
 type Sections = {
+  outcome: string
   reflection: string
   tier1: string
   well: string
@@ -21,6 +22,7 @@ type Sections = {
 }
 
 const SECTION_MARKERS: Array<{ marker: string; key: keyof Sections; next: string | null }> = [
+  { marker: '---OUTCOME---', key: 'outcome', next: '---REFLECTION---' },
   { marker: '---REFLECTION---', key: 'reflection', next: '---TIER1---' },
   { marker: '---TIER1---', key: 'tier1', next: '---WELL---' },
   { marker: '---WELL---', key: 'well', next: '---COST---' },
@@ -30,7 +32,7 @@ const SECTION_MARKERS: Array<{ marker: string; key: keyof Sections; next: string
 ]
 
 function parseSections(text: string): Sections {
-  const result: Sections = { reflection: '', tier1: '', well: '', cost: '', oneThing: '', score: '' }
+  const result: Sections = { outcome: '', reflection: '', tier1: '', well: '', cost: '', oneThing: '', score: '' }
 
   for (const { marker, key, next } of SECTION_MARKERS) {
     const startIdx = text.indexOf(marker)
@@ -89,7 +91,7 @@ export default function DebriefPage() {
   const [rexQuestion, setRexQuestion] = useState('')
   const [reflection, setReflection] = useState('')
   const [fullText, setFullText] = useState('')
-  const [sections, setSections] = useState<Sections>({ reflection: '', tier1: '', well: '', cost: '', oneThing: '', score: '' })
+  const [sections, setSections] = useState<Sections>({ outcome: '', reflection: '', tier1: '', well: '', cost: '', oneThing: '', score: '' })
   const [savedScore, setSavedScore] = useState<number | null>(null)
   const didInit = useRef(false)
 
@@ -230,6 +232,30 @@ export default function DebriefPage() {
           )}
         </div>
 
+        {/* Outcome banner (email mode only) */}
+        {session.mode === 'email' && s.outcome && (() => {
+          const upper = s.outcome.toUpperCase()
+          const isWin = upper.includes('WIN')
+          const isDraw = upper.includes('DRAW')
+          return (
+            <div className={`rounded-2xl px-5 py-4 mb-6 flex items-center gap-3 ${
+              isWin ? 'bg-green-50 border border-green-200' :
+              isDraw ? 'bg-yellow-50 border border-yellow-200' :
+              'bg-red-50 border border-red-200'
+            }`}>
+              <span className={`text-lg font-bold ${isWin ? 'text-green-600' : isDraw ? 'text-yellow-600' : 'text-red-600'}`}>
+                {isWin ? 'WIN' : isDraw ? 'DRAW' : 'LOSS'}
+              </span>
+              <span className={`text-xs font-semibold uppercase tracking-wider ${isWin ? 'text-green-500' : isDraw ? 'text-yellow-500' : 'text-red-500'}`}>
+                {isWin ? 'Meeting booked' : isDraw ? 'Engaged — no commitment' : 'Cold / declined'}
+              </span>
+              <span className={`text-sm ml-1 ${isWin ? 'text-green-700' : isDraw ? 'text-yellow-700' : 'text-red-700'}`}>
+                {s.outcome.replace(/^(WIN|DRAW|LOSS)[.\s]*/i, '').trim()}
+              </span>
+            </div>
+          )
+        })()}
+
         {/* Rex question */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
@@ -240,7 +266,7 @@ export default function DebriefPage() {
             </div>
           </div>
           <div className="text-zinc-700 leading-relaxed text-[15px]">
-            {rexQuestion || <span className="text-zinc-400 animate-pulse">Rex is reviewing the call...</span>}
+            {rexQuestion || <span className="text-zinc-400 animate-pulse">Rex is reviewing the {session.mode === 'email' ? 'email' : 'call'}...</span>}
           </div>
         </div>
 
@@ -254,7 +280,7 @@ export default function DebriefPage() {
               value={reflection}
               onChange={e => setReflection(e.target.value)}
               rows={4}
-              placeholder="What do you think happened on that call?"
+              placeholder={`What do you think happened with that ${session.mode === 'email' ? 'email' : 'call'}?`}
               className="w-full text-zinc-900 text-sm leading-relaxed placeholder-zinc-400 resize-none focus:outline-none"
             />
             <div className="flex justify-end mt-3">
@@ -322,17 +348,36 @@ export default function DebriefPage() {
                 {total < 60 && <span className="text-xs text-red-500 font-medium ml-2 mb-1">Tier 1 cap applied</span>}
               </div>
               <div className="space-y-3">
-                {breakdown.tier1Compliance !== undefined && (
-                  <ScoreBar label="Tier 1 compliance" earned={breakdown.tier1Compliance} max={40} />
-                )}
-                {breakdown.openingQuality !== undefined && (
-                  <ScoreBar label="Opening quality" earned={breakdown.openingQuality} max={15} />
-                )}
-                {breakdown.objectionHandling !== undefined && (
-                  <ScoreBar label="Objection handling" earned={breakdown.objectionHandling} max={25} />
-                )}
-                {breakdown.close !== undefined && (
-                  <ScoreBar label="Close / next step" earned={breakdown.close} max={20} />
+                {session.mode === 'email' ? (
+                  <>
+                    {breakdown.tier1Compliance !== undefined && (
+                      <ScoreBar label="Tier 1 compliance" earned={breakdown.tier1Compliance} max={30} />
+                    )}
+                    {breakdown.openingQuality !== undefined && (
+                      <ScoreBar label="Subject line & opening" earned={breakdown.openingQuality} max={25} />
+                    )}
+                    {breakdown.objectionHandling !== undefined && (
+                      <ScoreBar label="Personalization & relevance" earned={breakdown.objectionHandling} max={25} />
+                    )}
+                    {breakdown.close !== undefined && (
+                      <ScoreBar label="CTA / next step" earned={breakdown.close} max={20} />
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {breakdown.tier1Compliance !== undefined && (
+                      <ScoreBar label="Tier 1 compliance" earned={breakdown.tier1Compliance} max={40} />
+                    )}
+                    {breakdown.openingQuality !== undefined && (
+                      <ScoreBar label="Opening quality" earned={breakdown.openingQuality} max={15} />
+                    )}
+                    {breakdown.objectionHandling !== undefined && (
+                      <ScoreBar label="Objection handling" earned={breakdown.objectionHandling} max={25} />
+                    )}
+                    {breakdown.close !== undefined && (
+                      <ScoreBar label="Close / next step" earned={breakdown.close} max={20} />
+                    )}
+                  </>
                 )}
               </div>
             </div>

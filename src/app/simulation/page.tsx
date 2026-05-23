@@ -17,6 +17,7 @@ export default function SimulationPage() {
   const [callEnded, setCallEnded] = useState(false)
   const [elapsed, setElapsed] = useState(0)
   const [isEmailStart, setIsEmailStart] = useState(false)
+  const [subjectLine, setSubjectLine] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const didInit = useRef(false)
@@ -68,8 +69,13 @@ export default function SimulationPage() {
 
   const sendMessage = useCallback(async (messageOverride?: string) => {
     if (!session) return
-    const text = (messageOverride ?? input).trim()
-    if (!text || isLoading) return
+    const rawText = (messageOverride ?? input).trim()
+    if (!rawText || isLoading) return
+
+    const isEmail = session.mode === 'email'
+    const text = isEmail && isEmailStart && subjectLine.trim()
+      ? `Subject: ${subjectLine.trim()}\n\n${rawText}`
+      : rawText
 
     const repTurn: TranscriptTurn = { role: 'rep', content: text }
     const updatedTranscript = [...transcript, repTurn]
@@ -109,7 +115,7 @@ export default function SimulationPage() {
         })
       }
 
-      if (detectCallEnd(prospectText)) {
+      if (session.mode === 'email' || detectCallEnd(prospectText)) {
         setCallEnded(true)
         if (timerRef.current) clearInterval(timerRef.current)
       }
@@ -246,50 +252,71 @@ export default function SimulationPage() {
 
       <div className="max-w-2xl mx-auto w-full px-6 py-8 flex-1 flex flex-col">
         <div className="flex-1 space-y-4 mb-6">
-          {transcript.map((turn, i) => (
-            <div
-              key={i}
-              className={`rounded-2xl p-5 text-sm leading-relaxed ${
-                turn.role === 'rep'
-                  ? 'bg-white border border-zinc-200'
-                  : 'bg-green-50 border border-green-100'
-              }`}
-            >
-              <div className={`text-xs font-semibold mb-2 ${turn.role === 'rep' ? 'text-zinc-400' : 'text-green-700'}`}>
-                {turn.role === 'rep' ? 'You' : `${persona.name} replied`}
+          {transcript.map((turn, i) => {
+            const hasSubject = turn.role === 'rep' && turn.content.startsWith('Subject:')
+            const subjectMatch = hasSubject ? turn.content.match(/^Subject: (.+)\n\n([\s\S]*)$/) : null
+            const subject = subjectMatch?.[1] ?? ''
+            const body = subjectMatch?.[2] ?? turn.content
+            return (
+              <div
+                key={i}
+                className={`rounded-2xl p-5 text-sm leading-relaxed ${
+                  turn.role === 'rep'
+                    ? 'bg-white border border-zinc-200'
+                    : 'bg-green-50 border border-green-100'
+                }`}
+              >
+                <div className={`text-xs font-semibold mb-2 ${turn.role === 'rep' ? 'text-zinc-400' : 'text-green-700'}`}>
+                  {turn.role === 'rep' ? 'You' : `${persona.name} replied`}
+                </div>
+                {hasSubject && subject && (
+                  <div className="flex items-center gap-2 border-b border-zinc-100 pb-2 mb-2">
+                    <span className="text-xs font-semibold text-zinc-400">Subject</span>
+                    <span className="text-zinc-700 text-xs font-medium">{subject}</span>
+                  </div>
+                )}
+                <div className={turn.role === 'rep' ? 'text-zinc-700 whitespace-pre-wrap' : 'text-zinc-800'}>
+                  {body || <span className="text-zinc-400 italic animate-pulse">...</span>}
+                </div>
               </div>
-              <div className={turn.role === 'rep' ? 'text-zinc-700 whitespace-pre-wrap' : 'text-zinc-800'}>
-                {turn.content || <span className="text-zinc-400 italic animate-pulse">...</span>}
-              </div>
-            </div>
-          ))}
+            )
+          })}
           <div ref={bottomRef} />
         </div>
 
         {!callEnded ? (
           <div className="bg-white rounded-2xl border border-zinc-200 p-5">
             <div className="text-xs font-semibold text-zinc-400 mb-3 uppercase tracking-wider">
-              {isEmailStart ? 'Compose your cold email' : `Reply to ${persona.name}`}
+              Compose your cold email
             </div>
+            {isEmailStart && (
+              <div className="flex items-center gap-2 border-b border-zinc-100 pb-3 mb-3">
+                <span className="text-xs font-semibold text-zinc-400 w-14 shrink-0">Subject</span>
+                <input
+                  type="text"
+                  value={subjectLine}
+                  onChange={e => setSubjectLine(e.target.value)}
+                  disabled={isLoading}
+                  placeholder="Enter subject line..."
+                  className="flex-1 text-zinc-900 text-sm placeholder-zinc-400 focus:outline-none disabled:opacity-50"
+                />
+              </div>
+            )}
             <textarea
               value={input}
               onChange={e => setInput(e.target.value)}
               disabled={isLoading}
-              rows={isEmailStart ? 8 : 5}
-              placeholder={
-                isEmailStart
-                  ? `Write your cold email to ${persona.name}...`
-                  : 'Write your reply...'
-              }
+              rows={8}
+              placeholder={`Write your cold email to ${persona.name}...`}
               className="w-full text-zinc-900 text-sm leading-relaxed placeholder-zinc-400 resize-none focus:outline-none disabled:opacity-50"
             />
             <div className="flex justify-end mt-3">
               <button
                 onClick={() => sendMessage()}
-                disabled={isLoading || !input.trim()}
+                disabled={isLoading || !input.trim() || (isEmailStart && !subjectLine.trim())}
                 className="bg-zinc-900 hover:bg-zinc-700 disabled:bg-zinc-200 disabled:text-zinc-400 text-white font-semibold text-sm px-6 py-2.5 rounded-lg transition-colors"
               >
-                {isEmailStart ? 'Send Email' : 'Send Reply'}
+                Send Email
               </button>
             </div>
           </div>

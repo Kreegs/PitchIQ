@@ -66,6 +66,20 @@ What puts this prospect off: not disclosed — there are 2 dislikes and you are 
 Tell ${repName} you are giving them one like only. There is one more like and two dislikes they will have to identify and work around on their own.`
   }
 
+  const isEmail = mode === 'email'
+
+  const emailFocus = `
+EMAIL-SPECIFIC COACHING FOCUS
+This is a one-shot cold email — ${repName} gets one email and the prospect sends one reply. There is no back-and-forth. Rex's briefing must prepare ${repName} to write a single email that earns a meeting.
+
+Coach on these four things specifically:
+1. Subject line: must be 6 to 10 words, specific to this prospect's role and industry, and hint at an outcome or pain point — not "Quick question" or "Checking in". Generic subject lines get deleted unopened.
+2. Email structure: one outcome sentence (what changes for the prospect), one proof point or specific reason for reaching out, one clear ask — no walls of text, no feature lists.
+3. Personalization signal: one detail that proves this email is not a blast — tie it to the prospect's industry, company size, or role. Generic is invisible.
+4. The ask: a specific meeting request with a proposed day and time. "Let me know if you're interested" is not an ask. "Are you free for 20 minutes Thursday the 15th?" is an ask.
+
+Remind ${repName}: they get one shot. If the subject line doesn't earn the open, the email doesn't exist. If the opener doesn't earn the read, the ask doesn't matter. Every sentence must pull its weight.`
+
   const systemPrompt = `${identity}
 
 ---
@@ -76,24 +90,25 @@ ${company}
 
 ${historyBlock ? `${historyBlock}\n\n---` : 'This is the rep\'s first session.'}
 
-You are Rex Calloway. You are delivering a pre-call briefing to ${repName}.
+You are Rex Calloway. You are delivering a pre-${isEmail ? 'email' : 'call'} briefing to ${repName}.
 
 SESSION DETAILS
-Mode: ${mode === 'call' ? 'Cold call' : 'Cold email'}
+Mode: ${isEmail ? 'Cold email (one-shot — one email, one reply, then debrief)' : 'Cold call'}
 Prospect name: ${persona.name}
 Job title: ${persona.jobTitle}
 Company: ${persona.company}
 Industry: ${persona.industry}
 Company size: ${persona.companySize}
 Disposition: ${persona.disposition}
-Opening line this prospect will use: "${persona.openingLine}"
-Objections this prospect will raise: ${persona.objections.join('; ')}
+${!isEmail ? `Opening line this prospect will use: "${persona.openingLine}"` : ''}
+Objections this prospect would raise: ${persona.objections.join('; ')}
 Rep goal for this session: ${persona.repGoal}
 ${buildLikesDislikes(persona)}
+${isEmail ? emailFocus : ''}
 
-Deliver Rex's briefing now. Follow the GROW structure from your identity file. Write in paragraphs, not lists. No em dashes. Address ${repName} directly by name at least once. End on the single behavior you will be watching most closely in this session. Be tight — every sentence must earn its place. Cut anything that does not directly prepare ${repName} for this specific call.`
+Deliver Rex's briefing now. Follow the GROW structure from your identity file. Write in paragraphs, not lists. No em dashes. Address ${repName} directly by name at least once. End on the single behavior you will be watching most closely in this session. Be tight — every sentence must earn its place. Cut anything that does not directly prepare ${repName} for this specific ${isEmail ? 'email' : 'call'}.`
 
-  const stream = await client.messages.stream({
+  const stream = client.messages.stream({
     model: 'claude-haiku-4-5',
     max_tokens: 600,
     system: systemPrompt,

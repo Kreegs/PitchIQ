@@ -35,20 +35,22 @@ export async function POST(req: NextRequest) {
   const identity = readCoach('coach/identity.md')
   const transcriptText = formatTranscript(transcript, persona.name)
 
+  const isEmail = mode === 'email'
+
   if (action === 'open') {
     const systemPrompt = `${identity}
 
 You are Rex Calloway. The simulation has just ended. You are opening the debrief.
 
 Rep name: ${repName}
-Mode: ${mode === 'call' ? 'Cold call' : 'Cold email'}
+Mode: ${isEmail ? 'Cold email (one-shot)' : 'Cold call'}
 Prospect: ${persona.name}, ${persona.jobTitle} at ${persona.company}
 Prospect disposition: ${persona.disposition}
 
-TRANSCRIPT
+${isEmail ? 'EMAIL AND REPLY' : 'TRANSCRIPT'}
 ${transcriptText}
 
-Open the debrief with a single reflective question directed at ${repName}. Do not give any assessment yet. Do not hint at what you think went well or badly. Ask them what they think happened — what worked and what they think cost them. One question. No preamble. No em dashes. Address ${repName} by name.`
+Open the debrief with a single reflective question directed at ${repName}. Do not give any assessment yet. Do not hint at what you think went well or badly. Ask them what they think happened — what worked and what they think cost them. ${isEmail ? 'Frame it around the email they wrote and the reply they received.' : ''} One question. No preamble. No em dashes. Address ${repName} by name.`
 
     const stream = await client.messages.stream({
       model: 'claude-sonnet-4-5',
@@ -78,9 +80,9 @@ Open the debrief with a single reflective question directed at ${repName}. Do no
   }
 
   // action === 'respond'
-  const rules = readCoach('coach/rules.md')
+  const rules = readCoach(isEmail ? 'coach/email-rules.md' : 'coach/rules.md')
   const company = readCoach('coach/reference/company.md')
-  const examples = readCoach('coach/examples.md')
+  const examples = isEmail ? '' : readCoach('coach/examples.md')
 
   const systemPrompt = `${identity}
 
@@ -94,40 +96,38 @@ ${company}
 
 ---
 
-ANNOTATED EXAMPLES (use these to calibrate your evaluation)
-${examples}
-
----
-
-You are Rex Calloway delivering the full structured debrief to ${repName}.
+${!isEmail ? `ANNOTATED EXAMPLES (use these to calibrate your evaluation)\n${examples}\n\n---\n\n` : ''}You are Rex Calloway delivering the full structured debrief to ${repName}.
 
 SESSION DETAILS
 Rep name: ${repName}
-Mode: ${mode === 'call' ? 'Cold call' : 'Cold email'}
+Mode: ${isEmail ? 'Cold email (one-shot — one email, one prospect reply)' : 'Cold call'}
 Prospect: ${persona.name}, ${persona.jobTitle} at ${persona.company}
 Prospect disposition: ${persona.disposition}
-Prospect objections raised: ${persona.objections.join('; ')}
+Prospect objections: ${persona.objections.join('; ')}
 Rep goal: ${persona.repGoal}
 
-FULL TRANSCRIPT
+${isEmail ? 'EMAIL AND PROSPECT REPLY' : 'FULL TRANSCRIPT'}
 ${transcriptText}
 
 REP'S SELF-ASSESSMENT
 ${repReflection}
 
-Deliver the full debrief now. Use the section delimiters exactly as shown. Write in paragraphs within each section — no bullet lists. No em dashes. Be specific. Cite the transcript.
+Deliver the full debrief now. Use the section delimiters exactly as shown. Write in paragraphs within each section — no bullet lists. No em dashes. Be specific. Cite the ${isEmail ? 'email' : 'transcript'}.
+
+---OUTCOME---
+[Single word: WIN, DRAW, or LOSS. Then one sentence: what the prospect's reply signalled and why. WIN = meeting booked with a specific date. DRAW = engaged but no commitment. LOSS = cold, declined, or asked to be removed.]
 
 ---REFLECTION---
-[One paragraph responding to ${repName}'s self-assessment. Say whether they read the call accurately, where they were too hard or too easy on themselves.]
+[One paragraph responding to ${repName}'s self-assessment. Say whether they read the ${isEmail ? 'email exchange' : 'call'} accurately, where they were too hard or too easy on themselves.]
 
 ---TIER1---
-[Evaluate each of the six Tier 1 rules. For each: state Pass or Fail, cite the exact moment from the transcript. Write as flowing prose, one rule at a time. If there are no violations, say so plainly.]
+[Evaluate each Tier 1 rule. For each: state Pass or Fail, cite the exact moment from the ${isEmail ? 'email' : 'transcript'}. Write as flowing prose, one rule at a time. If there are no violations, say so plainly.]
 
 ---WELL---
-[Two or more specific things the rep did well, tied to exact moments in the transcript. No false positives — if nothing was genuinely good, say so and explain why that is still useful information.]
+[Two or more specific things the rep did well, tied to exact moments. No false positives — if nothing was genuinely good, say so and explain why that is still useful information.]
 
 ---COST---
-[The one or two things that had the most negative impact on the outcome. Cite specific moments. Explain the mechanism — not just what happened but why it cost them.]
+[The one or two things that had the most negative impact on the outcome. Cite specific moments. Explain the mechanism — not just what happened but why it cost them.${isEmail ? ' If the outcome was a DRAW, explain what would have converted it to a WIN.' : ''}]
 
 ---ONE-THING---
 [Single highest-leverage improvement for the next session. One thing only. Rex picks the most important. Not a list.]

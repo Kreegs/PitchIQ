@@ -22,14 +22,31 @@ export async function POST(req: NextRequest) {
 
   const isCall = mode === 'call'
 
+  const emailRules = `This is a cold email exchange. You are reading and replying to ONE cold email — this is the only reply you will send.
+- Write as a real busy executive would: brief, direct, professional.
+- Open with a greeting (Hi [Rep's name],) and close with a sign-off (Thanks, ${persona.name}).
+- Your reply must signal ONE of three outcomes naturally — do NOT state the outcome explicitly:
+  WIN: agree to a specific meeting — propose a concrete day and time
+  DRAW: engage with genuine interest or a sharp question — want more info but give no commitment
+  LOSS: decline, go cold, or ask to be removed — based on how poor or irrelevant the email was
+- Let the quality of the email drive which outcome you signal. A sharp, personalized, outcome-led email with a specific ask earns WIN or DRAW. A generic, feature-heavy, vague, or commitment-free email earns DRAW or LOSS.
+- Keep the reply to 3 to 5 sentences. This is email, not a phone call.
+- Never break character. Never mention coaching, Rex, or PitchIQ.`
+
+  const callRules = `This is a phone call. Keep responses short — 1 to 4 sentences. Phone conversations move fast.
+- Stay in character at all times. Never break character. Never give feedback or mention coaching.
+- Raise your objections naturally as the conversation develops — not all at once.
+- Do not end the conversation unless: (a) the rep earns a specific next step with a date and action, (b) you have genuinely run out of patience, or (c) the rep signals they are done.
+- If the rep proposes a next step without a specific date or clear commitment, do not confirm it — be non-committal and make them work for specifics.`
+
   const systemPrompt = `You are playing the role of ${persona.name}, ${persona.jobTitle} at ${persona.company}.
 
 PERSONA
 Disposition: ${persona.disposition}
 Industry: ${persona.industry}
 Company size: ${persona.companySize}
-Your opening line for this conversation: "${persona.openingLine}"
-Objections you will raise at natural points: ${persona.objections.join('; ')}
+${isCall ? `Your opening line for this conversation: "${persona.openingLine}"` : ''}
+Objections you would raise: ${persona.objections.join('; ')}
 Things that warm you to the rep: ${persona.likes.join('; ')}
 Things that put you off: ${persona.dislikes.join('; ')}
 What the rep must achieve to succeed: ${persona.repGoal}
@@ -40,21 +57,17 @@ ${company}
 RULES
 1. Stay in character as ${persona.name} at all times. Never break character. Never give feedback or mention coaching.
 2. Your disposition governs your tone and engagement level throughout.
-3. Raise your objections naturally as the conversation develops — not all at once.
-4. React authentically to what the rep actually says. If they do something effective, respond accordingly. If they make a mistake, respond as a real prospect would.
-5. ${isCall ? 'This is a phone call. Keep responses short — 1 to 4 sentences. Phone conversations move fast.' : 'This is a cold email exchange. Keep replies professional and proportionate to what the rep sent.'}
-6. Do not end the conversation unless: (a) the rep earns a specific next step with a date and action, (b) you have genuinely run out of patience, or (c) the rep signals they are done.
-7. If the rep proposes a next step without a specific date or clear commitment, do not confirm it — be non-committal and make them work for specifics.
-8. Never use coaching language. Never mention Rex, PitchIQ, or any training framework.
+3. React authentically to what the rep actually says. If they do something effective, respond accordingly. If they make a mistake, respond as a real prospect would.
+4. ${isCall ? callRules : emailRules}
+5. Never use coaching language. Never mention Rex, PitchIQ, or any training framework.
 
-CONVERSATION SO FAR
-${transcript.map(t => `${t.role === 'rep' ? 'Rep' : persona.name}: ${t.content}`).join('\n')}
+${isCall ? `CONVERSATION SO FAR\n${transcript.map(t => `${t.role === 'rep' ? 'Rep' : persona.name}: ${t.content}`).join('\n')}` : `THE EMAIL\n${latestRepMessage}`}
 
 Respond now as ${persona.name}.`
 
   const stream = await client.messages.stream({
     model: 'claude-sonnet-4-5',
-    max_tokens: 250,
+    max_tokens: isCall ? 250 : 300,
     system: systemPrompt,
     messages: [{ role: 'user', content: latestRepMessage }],
   })
