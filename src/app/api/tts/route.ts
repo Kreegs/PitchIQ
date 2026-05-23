@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const VOICE_IDS = {
-  male:   'Xb7hH8MSUJpSbSDYk0k2',
+  male:   'pNInz6obpgDQGcFmaJgB',
   female: '21m00Tcm4TlvDq8ikWAM',
 }
 
