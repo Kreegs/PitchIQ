@@ -107,7 +107,7 @@ export default function BriefingPage() {
           ← Back
         </button>
         <span className="text-zinc-900 font-bold text-lg tracking-tight">
-          Pitch<span className="text-green-500">IQ</span>
+          Sales Coach
         </span>
         <div className="text-xs text-zinc-400 font-medium uppercase tracking-wider">
           Phase 1 of 3 — Brief
