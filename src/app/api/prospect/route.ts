@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
   LOSS: decline, go cold, or ask to be removed — based on how poor or irrelevant the email was
 - Let the quality of the email drive which outcome you signal. A sharp, personalized, outcome-led email with a specific ask earns WIN or DRAW. A generic, feature-heavy, vague, or commitment-free email earns DRAW or LOSS.
 - Keep the reply to 3 to 5 sentences. This is email, not a phone call.
-- Never break character. Never mention coaching, Rex, or PitchIQ.`
+- Never break character. Never mention coaching, Rex, or Sales Coach.`
 
   const callRules = `This is a phone call. Keep responses short — 1 to 4 sentences. Phone conversations move fast.
 - Stay in character at all times. Never break character. Never give feedback or mention coaching.
@@ -89,7 +89,7 @@ RULES
 2. Your disposition governs your tone and engagement level throughout.
 3. React authentically to what the rep actually says. If they do something effective, respond accordingly. If they make a mistake, respond as a real prospect would.
 4. ${isCall ? callRules : emailRules}
-5. Never use coaching language. Never mention Rex, PitchIQ, or any training framework.`
+5. Never use coaching language. Never mention Rex, Sales Coach, or any training framework.`
 
   const dynamicBlock = isCall
     ? `CONVERSATION SO FAR\n${transcript.map(t => `${t.role === 'rep' ? 'Rep' : persona.name}: ${t.content}`).join('\n')}\n\nRespond now as ${persona.name}.`

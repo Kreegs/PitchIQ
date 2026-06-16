@@ -1,4 +1,4 @@
-# PitchIQ
+# Sales Coach
 
 - [Simulation Modes](#simulation-modes)
 - [Folder Structure](#folder-structure)

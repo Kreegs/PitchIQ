@@ -33,7 +33,7 @@ export default function Home() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-zinc-950/95 backdrop-blur-sm border-b border-zinc-800">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <span className="text-white font-bold text-xl tracking-tight">
-            Pitch<span className="text-green-400">IQ</span>
+            Sales Coach
           </span>
           <div className="hidden md:flex items-center gap-8">
             <a href="#how-it-works" className="text-zinc-400 hover:text-white text-sm transition-colors">How It Works</a>
@@ -61,7 +61,7 @@ export default function Home() {
             <span className="text-green-400">not slides.</span>
           </h1>
           <p className="text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-            PitchIQ puts every new hire through real sales scenarios before their first call.
+            Sales Coach puts every new hire through real sales scenarios before their first call.
             Brief. Simulate. Debrief. Repeat — until they are ready.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -118,7 +118,7 @@ export default function Home() {
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-zinc-900 mb-4">Three phases. One rep who is ready.</h2>
             <p className="text-zinc-500 text-lg max-w-2xl mx-auto">
-              Every PitchIQ session runs the same loop your best reps use — compressed into minutes instead of months.
+              Every Sales Coach session runs the same loop your best reps use — compressed into minutes instead of months.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
@@ -157,7 +157,7 @@ export default function Home() {
       <section id="demo" className="bg-green-500 py-24 px-6">
         <div className="max-w-xl mx-auto">
           <div className="text-center mb-10">
-            <h2 className="text-4xl font-bold text-zinc-950 mb-4">Try PitchIQ right now.</h2>
+            <h2 className="text-4xl font-bold text-zinc-950 mb-4">Try Sales Coach right now.</h2>
             <p className="text-green-900 text-base leading-relaxed">
               No signup. No credit card. You are about to be briefed by Rex before a cold call with a plant manager at a mid-size manufacturer.
               Same experience your reps get on day one.
@@ -233,7 +233,7 @@ export default function Home() {
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-zinc-900 mb-4">Not a chatbot. A coach.</h2>
             <p className="text-zinc-500 text-lg max-w-xl mx-auto">
-              We built PitchIQ around the behaviors that separate good coaches from bad ones.
+              We built Sales Coach around the behaviors that separate good coaches from bad ones.
             </p>
           </div>
           <div className="grid md:grid-cols-2 gap-5">
@@ -298,16 +298,15 @@ export default function Home() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div>
             <span className="text-white font-bold text-lg tracking-tight">
-              Pitch<span className="text-green-400">IQ</span>
+              Sales Coach
             </span>
             <p className="text-zinc-500 text-sm mt-1">AI-powered sales coaching for modern teams.</p>
           </div>
           <div className="flex gap-8">
             <a href="#" className="text-zinc-500 hover:text-zinc-300 text-sm transition-colors">Privacy</a>
             <a href="#" className="text-zinc-500 hover:text-zinc-300 text-sm transition-colors">Terms</a>
-            <a href="mailto:hello@pitchiq.ai" className="text-zinc-500 hover:text-zinc-300 text-sm transition-colors">hello@pitchiq.ai</a>
           </div>
-          <p className="text-zinc-600 text-sm">© 2025 PitchIQ. All rights reserved.</p>
+          <p className="text-zinc-600 text-sm">© 2025 Sales Coach. All rights reserved.</p>
         </div>
       </footer>
 
